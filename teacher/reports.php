@@ -1,26 +1,40 @@
 <?php
-$serverName = "DESKTOP-KU7TVN0\\SQLEXPRESS"; // Имя вашего сервера (с именем экземпляра)
-$databaseName = "prod";                     // Имя вашей базы данных
+// reports.php
 
-// Параметры аутентификации
-$connectionOptions = array(
-    "UID" => "",            // Ваше имя пользователя SQL Server
-    "PWD" => "",                // Ваш пароль SQL Server
-    "Database" => $databaseName,
-    "CharacterSet" => "UTF-8"
-);
+// Включение отображения ошибок (только для разработки)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-// Попытка подключения
-$link = sqlsrv_connect($serverName, $connectionOptions);
-session_start();
 
-// --- Проверка авторизации и роли ---
-// Если пользователь не авторизован или не является учителем, перенаправляем на страницу входа
-if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || $_SESSION['role'] !== 'учитель') {
-    header("Location: ../Login.php");
-    exit;
+require_once '../includes/db_connect.php';
+
+
+define('ROOT_PATH', realpath(__DIR__ . '/../') . '/');
+
+
+$error_message = '';
+$success_message = '';
+$courses = [];
+
+// Получаем данные из базы данных
+$sql_courses = "SELECT id_курса, название FROM Курсы";
+$stmt_courses = sqlsrv_query($link, $sql_courses);
+
+if ($stmt_courses === false) {
+    log_sqlsrv_errors("Подготовка запроса списка курсов");
+    $error_message = "Ошибка сервера при получении списка курсов.";
+} else {
+    while ($row = sqlsrv_fetch_array($stmt_courses, SQLSRV_FETCH_ASSOC)) {
+        $courses[] = $row;
+    }
 }
 
-// Получаем имя пользователя из сессии
-$user_login = $_SESSION['login'] ?? 'Учитель';
+// Обработка формы
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['view_report'])) {
+    $course_id = trim($_POST['course_id']);
+    $report_date = trim($_POST['report_date']);
+
+    $success_message = "Отчет для курса с ID: $course_id и даты: $report_date успешно сформирован.";
+}
 ?>
