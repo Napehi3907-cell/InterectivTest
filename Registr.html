@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head class=".Fond">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Авторизация</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .Fond {
+            color:rgb(21, 76, 95)
+
+
+        } 
+        .login-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        button {
+            padding: 7px 7px;
+            border: none;
+            border-radius: 5px;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .student-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .teacher-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        .Regis-btn {
+        font-size: 16px;
+  font-weight: 700;
+  color: #ff7576;
+  background-color: #35416d;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 12px 24px;
+  position: relative;
+  line-height: 24px;
+  border-radius: 9px;
+  box-shadow: 0px 1px 2px #333b58,
+    0px 4px 16px #363c55;
+  transform-style: preserve-3d;
+  transform: scale(var(--s, 1)) perspective(600px)
+    rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  perspective: 600px;
+  transition: transform 0.1s;
+        }
+.rainbow-hover:active {
+  transition: 0.3s;
+  transform: scale(0.93);
+}
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .no-underline { text-decoration: none;
+            background: linear-gradient(
+      90deg,
+      #866ee7,
+      #ea60da,
+      #ed8f57,
+      #fbd41d,
+      #2cca91
+    );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: block;
+            
+
+}
+    </style>
+</head>
+<body class="Fond">
+    <div class="login-container">
+        <h2>  Регистрация</h2>
+        <form method="post" action="Registr.php">
+         
+            <div class="form-group">
+                <label for="login">Логин:</label>
+                <input type="text" id="login" name="login" value="" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Пароль:</label>
+               
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="button-group">
+                <button type="submit" name="login_Reubctr_student" class="student-btn">зарегестрироваться как ученик</button>
+                <button type="submit" name="login_Reubctr_teacher" class="teacher-btn">зарегестрироваться как учитель</button>
+              
+            </div> 
+            <div class="nav-bar">
+                <button  name="login_as_regist" class="Regis-btn">
+                  <a Href="http://localhost/15/your_project_folder/login.php" class="no-underline">
+                     Выход
+                  </a> 
+                </button>
+            </div>  
+            
+        </form>
+    </div>
+</body>
+</html>

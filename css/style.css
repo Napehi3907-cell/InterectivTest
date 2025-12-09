@@ -1,0 +1,329 @@
+/* --- Общие стили --- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa; /* Светло-серый фон */
+       background: #ced4da;
+       color: #343a40; /* Темно-серый текст */
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+header {
+    background-color: #343a40; /* Темно-синий заголовок */
+    color: #ffffff;
+ 
+    padding: 15px 30px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    position: sticky; /* Фиксированный заголовок */
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.nav-bar span {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.nav-bar a {
+    color: #dee2e6; /* Светло-серый цвет ссылок */
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    margin-left: 15px;
+}
+
+.nav-bar a:hover {
+    background-color: #3674b3; /* Чуть светлее фон при наведении */
+    color: #ffffff;
+}
+
+main {
+    padding: 30px;
+    max-width: 1200px;
+    margin: 30px auto;
+    background-color: #ffffff; /* Белый фон для основного контента */
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+}
+
+h1, h2, h3, h4 {
+    color: #007bff; /* Яркий синий заголовок */
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* --- Страница входа --- */
+.login-container {
+    max-width: 450px;
+    margin: 100px auto;
+    padding: 40px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    text-align: center;
+    border: 1px solid #e0e0e0;
+}
+
+.login-container h1 {
+    color: #343a40;
+    margin-bottom: 30px;
+    font-size: 2rem;
+}
+
+.login-container form label {
+    display: block;
+    margin-top: 18px;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.95rem;
+}
+
+.login-container form input[type="text"],
+.login-container form input[type="password"] {
+    width: 100%;
+    padding: 15px;
+    margin-top: 10px;
+    border: 1px solid #ced4da; /* Светло-серый бордер */
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 1.1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.login-container form input[type="text"]:focus,
+.login-container form input[type="password"]:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+.login-container button {
+    width: 100%;
+    padding: 15px;
+    background-color: #007bff; /* Ярко-синяя кнопка */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 30px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.login-container button:hover {
+    background-color: #0056b3; /* Темно-синий при наведении */
+    transform: translateY(-2px);
+}
+
+.error {
+    color: #dc3545; /* Красный текст ошибки */
+    background-color: #f8d7da; /* Светло-красный фон */
+    padding: 15px;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+/* --- Карточки и секции --- */
+.card {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.07);
+    margin-bottom: 30px;
+}
+
+.form-section {
+    border-left: 6px solid #28a745; /* Зеленый маркер для форм */
+}
+
+.card h3 {
+    margin-top: 0;
+    color: #28a745; /* Зеленый для заголовков секций */
+    font-size: 1.7rem;
+}
+
+/* --- Кнопки --- */
+.btn {
+    display: inline-block;
+    padding: 12px 22px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    font-size: 1.05rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-right: 15px;
+    margin-bottom: 10px; /* Отступ для кнопок */
+}
+.btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+}
+
+.back-link {
+    background-color: #6c757d; /* Серый цвет */
+}
+.back-link:hover {
+    background-color: #5a6268;
+}
+
+.save-btn {
+    background-color: #28a745; /* Зеленый для сохранения */
+}
+.save-btn:hover {
+    background-color: #218838;
+}
+
+.view-btn {
+    background-color: #ffc107; /* Желтый */
+    color: #343a40;
+}
+.view-btn:hover {
+    background-color: #e0a800;
+    color: #343a40;
+}
+.no-underline { text-decoration: none;
+
+}
+/* --- Прогресс --- */
+.progress-bar-container {
+    width: 100%;
+    background-color: #e9ecef; /* Очень светло-серый */
+    border-radius: 12px;
+    margin: 15px 0;
+    overflow: hidden;
+}
+.progress-bar {
+    height: 20px;
+    background-color: #28a745; /* Зеленый прогресс */
+    border-radius: 12px;
+    transition: width 1s ease-in-out;
+    text-align: center;
+    color: white;
+    line-height: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+.large .progress-bar {
+    height: 30px;
+    line-height: 30px;
+    font-size: 1.1rem;
+}
+
+/* --- Списки уроков --- */
+.lesson-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+}
+.lesson-list li {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px dashed #dee2e6;
+}
+.lesson-list li:last-child {
+    border-bottom: none;
+}
+
+.lesson-title {
+    flex-grow: 1; /* Занимает все доступное место */
+    margin-right: 15px;
+    font-weight: 500;
+    font-size: 1.05rem;
+}
+.completed {
+    color: #28a745; /* Зеленый */
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin-left: 15px;
+}
+.upcoming {
+    color: #6c757d; /* Серый */
+    font-size: 0.9rem;
+    margin-left: 15px;
+}
+
+/* --- Таблицы Отчетов --- */
+.grade-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+.grade-table th, .grade-table td {
+    border: 1px solid #dee2e6;
+    padding: 15px;
+    text-align: left;
+}
+.grade-table th {
+    background-color: #e9ecef;
+    font-weight: bold;
+    color: #495057;
+}
+.grade-table input[type="number"] {
+    width: 90px;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* --- Разное --- */
+.actions {
+    white-space: nowrap;
+}
+.rainbow-hover {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ff7576;
+  background-color: #2B3044;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 12px 24px;
+  position: relative;
+  line-height: 24px;
+  border-radius: 9px;
+  box-shadow: 0px 1px 2px #2B3044,
+    0px 4px 16px #2B3044;
+  transform-style: preserve-3d;
+  transform: scale(var(--s, 1)) perspective(600px)
+    rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  perspective: 600px;
+  transition: transform 0.1s;
+}
+
+.sp {
+  background: linear-gradient(
+      90deg,
+      #7969c0,
+
+    );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-decoration-color: transparent;
+  display: block;
+}
+
+.rainbow-hover:active {
+  transition: 0.3s;
+  transform: scale(0.93);
+}
