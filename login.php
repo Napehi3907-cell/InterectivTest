@@ -82,14 +82,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['login'] = $login;
 
                 // Перенаправляем в зависимости от роли
-             
-        if ($user['Rol'] === 'препод') {
-            header("Location: http://localhost/15/your_project_folder/teacher/reposts_Html.php");
-exit;
-        } elseif ($user['Rol'] === 'ученик') {
-            header("Location: http://localhost/15/your_project_folder/student/lesson_Html.php");
-exit;
-        }
+
+                if ($user['Rol'] === 'препод') {
+                    header("Location: http://localhost/15/your_project_folder/teacher/reposts_Html.php");
+                    exit;
+                } elseif ($user['Rol'] === 'ученик') {
+                    header("Location: http://localhost/15/your_project_folder/student/lesson_Html.php");
+                    exit;
+                }
             } else {
                 echo "Ключ 'Rol' не найден в массиве \$user.<br>";
                 $error_message = "Ошибка сервера: недопустимая роль пользователя.";
@@ -101,6 +101,7 @@ exit;
 
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -116,6 +117,7 @@ exit;
             align-items: center;
             height: 100vh;
         }
+
         .login-container {
             background-color: #fff;
             padding: 20px;
@@ -123,17 +125,21 @@ exit;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 300px;
         }
+
         h2 {
             text-align: center;
             margin-bottom: 20px;
         }
+
         .form-group {
             margin-bottom: 15px;
         }
+
         label {
             display: block;
             margin-bottom: 5px;
         }
+
         input[type="text"],
         input[type="password"] {
             width: 100%;
@@ -142,11 +148,13 @@ exit;
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+
         .button-group {
             display: flex;
             justify-content: space-between;
             margin-top: 20px;
         }
+
         button {
             padding: 10px 15px;
             border: none;
@@ -154,23 +162,28 @@ exit;
             cursor: pointer;
             font-size: 16px;
         }
+
         .student-btn {
             background-color: #4CAF50;
             color: white;
         }
+
         .teacher-btn {
             background-color: #2196F3;
             color: white;
         }
-        .Registr-btn{
+
+        .Registr-btn {
             background-color: #e4f830ff;
             text-align: center;
             justify-content: center;
             align-items: center;
         }
-.no-underline { text-decoration: none;
-    text-color: #ffffffff;
-}
+
+        .no-underline {
+            text-decoration: none;
+            text-color: #ffffffff;
+        }
 
         .error-message {
             color: red;
@@ -179,6 +192,7 @@ exit;
         }
     </style>
 </head>
+
 <body>
     <div class="login-container">
         <h2>Авторизация</h2>
@@ -198,9 +212,10 @@ exit;
                 <button type="submit" name="login_as_student" class="student-btn">Войти как ученик</button>
                 <button type="submit" name="login_as_teacher" class="teacher-btn">Войти как учитель</button>
             </div>
-            <button onclick="" class="Registr-btn" ><a href="http://localhost/15/your_project_folder/Registr.html" class = "no-underline">
-                  Регистрация
-            </a>
+            <button onclick="" class="Registr-btn"><a href="http://localhost/15/your_project_folder/Registr.html"
+                    class="no-underline">
+                    Регистрация
+                </a>
             </button>
             <?php if (!empty($error_message)): ?>
                 <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
@@ -208,5 +223,5 @@ exit;
         </form>
     </div>
 </body>
-</html>
 
+</html>

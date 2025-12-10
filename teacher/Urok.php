@@ -1,5 +1,3 @@
-
-
 <?php
 // add_lesson.php
 
@@ -53,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -68,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             align-items: center;
             height: 100vh;
         }
+
         main {
             background-color: #fff;
             padding: 20px;
@@ -75,17 +75,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 300px;
         }
+
         h1 {
             text-align: center;
             margin-bottom: 20px;
         }
+
         .form-group {
             margin-bottom: 15px;
         }
+
         label {
             display: block;
             margin-bottom: 5px;
         }
+
         input[type="text"],
         textarea {
             width: 100%;
@@ -94,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+
         .btn {
             display: block;
             width: 100%;
@@ -106,61 +111,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             cursor: pointer;
             font-size: 16px;
         }
+
         .btn:hover {
             background-color: #45a049;
         }
+
         .error-message {
             color: red;
             text-align: center;
             margin-top: 10px;
         }
+
         .success-message {
             color: green;
             text-align: center;
             margin-top: 10px;
         }
-         .Regis-btn {
-        font-size: 16px;
-  font-weight: 700;
-  color: #ff7576;
-  background-color: #35416d;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  padding: 12px 24px;
-  position: relative;
-  line-height: 24px;
-  border-radius: 9px;
-  box-shadow: 0px 1px 2px #333b58,
-    0px 4px 16px #363c55;
-  transform-style: preserve-3d;
-  transform: scale(var(--s, 1)) perspective(600px)
-    rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  perspective: 600px;
-  transition: transform 0.1s;
-        }
-          .no-underline { text-decoration: none;
-            background: linear-gradient(
-      90deg,
-      #866ee7,
-      #ea60da,
-      #ed8f57,
-      #fbd41d,
-      #2cca91
-    );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  display: block;
-            
 
-}
-.rainbow-hover:active {
-  transition: 0.3s;
-  transform: scale(0.93);
-}
+        .Regis-btn {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ff7576;
+            background-color: #35416d;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 12px 24px;
+            position: relative;
+            line-height: 24px;
+            border-radius: 9px;
+            box-shadow: 0px 1px 2px #333b58,
+                0px 4px 16px #363c55;
+            transform-style: preserve-3d;
+            transform: scale(var(--s, 1)) perspective(600px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+            perspective: 600px;
+            transition: transform 0.1s;
+        }
+
+        .no-underline {
+            text-decoration: none;
+            background: linear-gradient(90deg,
+                    #866ee7,
+                    #ea60da,
+                    #ed8f57,
+                    #fbd41d,
+                    #2cca91);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+
+
+        }
+
+        .rainbow-hover:active {
+            transition: 0.3s;
+            transform: scale(0.93);
+        }
     </style>
 </head>
+
 <body>
     <main>
         <form method="post" action="Urok.php">
@@ -178,11 +188,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <textarea id="lesson_content" name="lesson_content" required></textarea>
             </div>
             <button type="submit" name="add_bt" class="btn">Добавление урока</button>
-             <button  name="login_as_regist" class="Regis-btn">
-                  <a Href="http://localhost/15/your_project_folder/teacher/reposts_Html.php" class="no-underline">
-                     Выход
-                  </a> 
-                </button>
+            <button name="login_as_regist" class="Regis-btn">
+                <a Href="http://localhost/15/your_project_folder/teacher/reposts_Html.php" class="no-underline">
+                    Выход
+                </a>
+            </button>
             <?php if (!empty($error_message)): ?>
                 <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
             <?php endif; ?>
@@ -192,4 +202,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
     </main>
 </body>
+
 </html>

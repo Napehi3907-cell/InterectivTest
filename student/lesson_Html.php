@@ -31,11 +31,13 @@ if ($stmt_courses === false) {
 
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <title>Уроки - Ученик</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
+
 <body>
     <header>
         <div class="nav-bar">
@@ -55,75 +57,75 @@ if ($stmt_courses === false) {
                 <div class="progress-bar" style="width: 75%;"></div>
             </div>
 
-           <main>
-        <h1>Список курсов и уроков</h1>
+            <main>
+                <h1>Список курсов и уроков</h1>
 
-        <?php if (!empty($error_message)): ?>
-            <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
-        <?php endif; ?>
-        <?php if (!empty($success_message)): ?>
-            <div class="success-message"><?php echo htmlspecialchars($success_message); ?></div>
-        <?php endif; ?>
+                <?php if (!empty($error_message)): ?>
+                    <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
+                <?php endif; ?>
+                <?php if (!empty($success_message)): ?>
+                    <div class="success-message"><?php echo htmlspecialchars($success_message); ?></div>
+                <?php endif; ?>
 
-        <ul class="courses-list">
-            <?php foreach ($courses as $course): ?>
-                <li class="course-item" onclick="toggleLessons(<?php echo $course['id_курса']; ?>)">
-                    <h2><?php echo htmlspecialchars($course['название']); ?></h2>
-                    <p><?php echo htmlspecialchars($course['описание']); ?></p>
-                    <ul class="lessons-list" id="lessons-<?php echo $course['id_курса']; ?>">
-                        <?php
-                        $sql_lessons = "SELECT id_урока, название, контент FROM Уроки WHERE id_курса = ?";
-                        $params_lessons = [$course['id_курса']];
-                        $stmt_lessons = sqlsrv_prepare($link, $sql_lessons, $params_lessons);
+                <ul class="courses-list">
+                    <?php foreach ($courses as $course): ?>
+                        <li class="course-item" onclick="toggleLessons(<?php echo $course['id_курса']; ?>)">
+                            <h2><?php echo htmlspecialchars($course['название']); ?></h2>
+                            <p><?php echo htmlspecialchars($course['описание']); ?></p>
+                            <ul class="lessons-list" id="lessons-<?php echo $course['id_курса']; ?>">
+                                <?php
+                                $sql_lessons = "SELECT id_урока, название, контент FROM Уроки WHERE id_курса = ?";
+                                $params_lessons = [$course['id_курса']];
+                                $stmt_lessons = sqlsrv_prepare($link, $sql_lessons, $params_lessons);
 
-                        if ($stmt_lessons === false) {
-                            log_sqlsrv_errors("Подготовка запроса списка уроков");
-                            $error_message = "Ошибка сервера при получении списка уроков.";
-                        } else {
-                            if (sqlsrv_execute($stmt_lessons)) {
-                                while ($lesson = sqlsrv_fetch_array($stmt_lessons, SQLSRV_FETCH_ASSOC)) {
-                                    echo '<li class="lesson-item">';
-                                    echo '<h3>' . htmlspecialchars($lesson['название']) . '</h3>';
-                                    echo '<p>' . htmlspecialchars($lesson['контент']) . '</p>';
-                                    echo '<button class="btn" onclick="startLesson(' . $lesson['id_урока'] . ')">Начать урок</button>';
-                                    echo '<button class="btn" onclick="completeLesson(' . $lesson['id_урока'] . ')">Завершить урок</button>';
-                                    echo '</li>';
+                                if ($stmt_lessons === false) {
+                                    log_sqlsrv_errors("Подготовка запроса списка уроков");
+                                    $error_message = "Ошибка сервера при получении списка уроков.";
+                                } else {
+                                    if (sqlsrv_execute($stmt_lessons)) {
+                                        while ($lesson = sqlsrv_fetch_array($stmt_lessons, SQLSRV_FETCH_ASSOC)) {
+                                            echo '<li class="lesson-item">';
+                                            echo '<h3>' . htmlspecialchars($lesson['название']) . '</h3>';
+                                            echo '<p>' . htmlspecialchars($lesson['контент']) . '</p>';
+                                            echo '<button class="btn" onclick="startLesson(' . $lesson['id_урока'] . ')">Начать урок</button>';
+                                            echo '<button class="btn" onclick="completeLesson(' . $lesson['id_урока'] . ')">Завершить урок</button>';
+                                            echo '</li>';
+                                        }
+                                    } else {
+                                        log_sqlsrv_errors("Выполнение запроса списка уроков");
+                                        $error_message = "Ошибка сервера при получении списка уроков.";
+                                    }
                                 }
-                            } else {
-                                log_sqlsrv_errors("Выполнение запроса списка уроков");
-                                $error_message = "Ошибка сервера при получении списка уроков.";
-                            }
-                        }
-                        ?>
-                    </ul>
-                </li>
-            <?php endforeach; ?>
-        </ul>
-    </main>
+                                ?>
+                            </ul>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </main>
 
-    <script>
-        // Функция для переключения отображения списка уроков
-        function toggleLessons(courseId) {
-            const lessonsList = document.getElementById('lessons-' + courseId);
-            if (lessonsList.style.display === 'none' || lessonsList.style.display === '') {
-                lessonsList.style.display = 'block';
-            } else {
-                lessonsList.style.display = 'none';
-            }
-        }
+            <script>
+                // Функция для переключения отображения списка уроков
+                function toggleLessons(courseId) {
+                    const lessonsList = document.getElementById('lessons-' + courseId);
+                    if (lessonsList.style.display === 'none' || lessonsList.style.display === '') {
+                        lessonsList.style.display = 'block';
+                    } else {
+                        lessonsList.style.display = 'none';
+                    }
+                }
 
-        // Функция для начала урока
-        function startLesson(lessonId) {
-            alert('Начало урока с ID: ' + lessonId);
-            // Здесь можно добавить код для начала урока
-        }
+                // Функция для начала урока
+                function startLesson(lessonId) {
+                    alert('Начало урока с ID: ' + lessonId);
+                    // Здесь можно добавить код для начала урока
+                }
 
-        // Функция для завершения урока
-        function completeLesson(lessonId) {
-            alert('Завершение урока с ID: ' + lessonId);
-            // Здесь можно добавить код для завершения урока
-        }
-    </script>
+                // Функция для завершения урока
+                function completeLesson(lessonId) {
+                    alert('Завершение урока с ID: ' + lessonId);
+                    // Здесь можно добавить код для завершения урока
+                }
+            </script>
 
             <h4>Уроки:</h4>
             <ul class="lesson-list">
@@ -142,7 +144,7 @@ if ($stmt_courses === false) {
                     <a href="#" class="btn view-btn">Смотреть</a>
                     <span class="status upcoming">[НЕ ПРОЙДЕНО]</span>
                 </li>
-                 <li>
+                <li>
                     <span class="lesson-title">Урок 4: Интерактивность</span>
                     <a href="#" class="btn view-btn">Смотреть</a>
                     <span class="status upcoming">[НЕ ПРОЙДЕНО]</span>
@@ -153,4 +155,5 @@ if ($stmt_courses === false) {
     </main>
 
 </body>
+
 </html>

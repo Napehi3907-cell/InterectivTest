@@ -29,11 +29,12 @@ if (!$link) {
     }
     error_log($errorMessage);
     die('Не удалось подключиться к базе данных. Пожалуйста, обратитесь к администратору.');
-    
+
 }
 
 // --- Функция для логирования ошибок SQLSRV ---
-function log_sqlsrv_errors($context = "") {
+function log_sqlsrv_errors($context = "")
+{
     $errors = sqlsrv_errors(); // Убираем аргумент $link
     $errorMessage = "SQLSRV Error" . ($context ? " in {$context}" : "") . ": ";
     if ($errors) {

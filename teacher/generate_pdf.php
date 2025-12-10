@@ -84,7 +84,7 @@ $html = '
 
 foreach ($students as $student) {
     $full_name = htmlspecialchars($student['фио']);
-    $attendances = (int)$student['посещений'];
+    $attendances = (int) $student['посещений'];
     $html .= "<tr><td>{$full_name}</td><td>{$attendances}</td></tr>";
 }
 

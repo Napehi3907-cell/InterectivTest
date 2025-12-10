@@ -1,21 +1,25 @@
 /* --- Общие стили --- */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fa; /* Светло-серый фон */
-       background: #ced4da;
-       color: #343a40; /* Темно-серый текст */
+    background-color: #f8f9fa;
+    /* Светло-серый фон */
+    background: #ced4da;
+    color: #343a40;
+    /* Темно-серый текст */
     margin: 0;
     padding: 0;
     line-height: 1.6;
 }
 
 header {
-    background-color: #343a40; /* Темно-синий заголовок */
+    background-color: #343a40;
+    /* Темно-синий заголовок */
     color: #ffffff;
- 
+
     padding: 15px 30px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    position: sticky; /* Фиксированный заголовок */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    /* Фиксированный заголовок */
     top: 0;
     z-index: 1000;
 }
@@ -34,7 +38,8 @@ header {
 }
 
 .nav-bar a {
-    color: #dee2e6; /* Светло-серый цвет ссылок */
+    color: #dee2e6;
+    /* Светло-серый цвет ссылок */
     text-decoration: none;
     padding: 8px 15px;
     border-radius: 5px;
@@ -43,7 +48,8 @@ header {
 }
 
 .nav-bar a:hover {
-    background-color: #3674b3; /* Чуть светлее фон при наведении */
+    background-color: #3674b3;
+    /* Чуть светлее фон при наведении */
     color: #ffffff;
 }
 
@@ -51,13 +57,18 @@ main {
     padding: 30px;
     max-width: 1200px;
     margin: 30px auto;
-    background-color: #ffffff; /* Белый фон для основного контента */
+    background-color: #ffffff;
+    /* Белый фон для основного контента */
     border-radius: 10px;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
 }
 
-h1, h2, h3, h4 {
-    color: #007bff; /* Яркий синий заголовок */
+h1,
+h2,
+h3,
+h4 {
+    color: #007bff;
+    /* Яркий синий заголовок */
     margin-bottom: 20px;
     font-weight: 600;
 }
@@ -69,7 +80,7 @@ h1, h2, h3, h4 {
     padding: 40px;
     background: #ffffff;
     border-radius: 12px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
     text-align: center;
     border: 1px solid #e0e0e0;
 }
@@ -94,12 +105,14 @@ h1, h2, h3, h4 {
     width: 100%;
     padding: 15px;
     margin-top: 10px;
-    border: 1px solid #ced4da; /* Светло-серый бордер */
+    border: 1px solid #ced4da;
+    /* Светло-серый бордер */
     border-radius: 8px;
     box-sizing: border-box;
     font-size: 1.1rem;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
+
 .login-container form input[type="text"]:focus,
 .login-container form input[type="password"]:focus {
     border-color: #80bdff;
@@ -110,7 +123,8 @@ h1, h2, h3, h4 {
 .login-container button {
     width: 100%;
     padding: 15px;
-    background-color: #007bff; /* Ярко-синяя кнопка */
+    background-color: #007bff;
+    /* Ярко-синяя кнопка */
     color: white;
     border: none;
     border-radius: 8px;
@@ -120,14 +134,18 @@ h1, h2, h3, h4 {
     font-weight: 600;
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
+
 .login-container button:hover {
-    background-color: #0056b3; /* Темно-синий при наведении */
+    background-color: #0056b3;
+    /* Темно-синий при наведении */
     transform: translateY(-2px);
 }
 
 .error {
-    color: #dc3545; /* Красный текст ошибки */
-    background-color: #f8d7da; /* Светло-красный фон */
+    color: #dc3545;
+    /* Красный текст ошибки */
+    background-color: #f8d7da;
+    /* Светло-красный фон */
     padding: 15px;
     border: 1px solid #f5c6cb;
     border-radius: 8px;
@@ -142,17 +160,19 @@ h1, h2, h3, h4 {
     border: 1px solid #e0e0e0;
     padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.07);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.07);
     margin-bottom: 30px;
 }
 
 .form-section {
-    border-left: 6px solid #28a745; /* Зеленый маркер для форм */
+    border-left: 6px solid #28a745;
+    /* Зеленый маркер для форм */
 }
 
 .card h3 {
     margin-top: 0;
-    color: #28a745; /* Зеленый для заголовков секций */
+    color: #28a745;
+    /* Зеленый для заголовков секций */
     font-size: 1.7rem;
 }
 
@@ -170,49 +190,63 @@ h1, h2, h3, h4 {
     font-weight: 500;
     transition: background-color 0.3s ease, transform 0.2s ease;
     margin-right: 15px;
-    margin-bottom: 10px; /* Отступ для кнопок */
+    margin-bottom: 10px;
+    /* Отступ для кнопок */
 }
+
 .btn:hover {
     background-color: #0056b3;
     transform: translateY(-1px);
 }
 
 .back-link {
-    background-color: #6c757d; /* Серый цвет */
+    background-color: #6c757d;
+    /* Серый цвет */
 }
+
 .back-link:hover {
     background-color: #5a6268;
 }
 
 .save-btn {
-    background-color: #28a745; /* Зеленый для сохранения */
+    background-color: #28a745;
+    /* Зеленый для сохранения */
 }
+
 .save-btn:hover {
     background-color: #218838;
 }
 
 .view-btn {
-    background-color: #ffc107; /* Желтый */
+    background-color: #ffc107;
+    /* Желтый */
     color: #343a40;
 }
+
 .view-btn:hover {
     background-color: #e0a800;
     color: #343a40;
 }
-.no-underline { text-decoration: none;
+
+.no-underline {
+    text-decoration: none;
 
 }
+
 /* --- Прогресс --- */
 .progress-bar-container {
     width: 100%;
-    background-color: #e9ecef; /* Очень светло-серый */
+    background-color: #e9ecef;
+    /* Очень светло-серый */
     border-radius: 12px;
     margin: 15px 0;
     overflow: hidden;
 }
+
 .progress-bar {
     height: 20px;
-    background-color: #28a745; /* Зеленый прогресс */
+    background-color: #28a745;
+    /* Зеленый прогресс */
     border-radius: 12px;
     transition: width 1s ease-in-out;
     text-align: center;
@@ -221,6 +255,7 @@ h1, h2, h3, h4 {
     font-size: 0.9rem;
     font-weight: 500;
 }
+
 .large .progress-bar {
     height: 30px;
     line-height: 30px;
@@ -233,30 +268,37 @@ h1, h2, h3, h4 {
     padding: 0;
     margin-top: 20px;
 }
+
 .lesson-list li {
     display: flex;
     align-items: center;
     padding: 15px 0;
     border-bottom: 1px dashed #dee2e6;
 }
+
 .lesson-list li:last-child {
     border-bottom: none;
 }
 
 .lesson-title {
-    flex-grow: 1; /* Занимает все доступное место */
+    flex-grow: 1;
+    /* Занимает все доступное место */
     margin-right: 15px;
     font-weight: 500;
     font-size: 1.05rem;
 }
+
 .completed {
-    color: #28a745; /* Зеленый */
+    color: #28a745;
+    /* Зеленый */
     font-weight: bold;
     font-size: 0.9rem;
     margin-left: 15px;
 }
+
 .upcoming {
-    color: #6c757d; /* Серый */
+    color: #6c757d;
+    /* Серый */
     font-size: 0.9rem;
     margin-left: 15px;
 }
@@ -267,16 +309,20 @@ h1, h2, h3, h4 {
     border-collapse: collapse;
     margin-top: 20px;
 }
-.grade-table th, .grade-table td {
+
+.grade-table th,
+.grade-table td {
     border: 1px solid #dee2e6;
     padding: 15px;
     text-align: left;
 }
+
 .grade-table th {
     background-color: #e9ecef;
     font-weight: bold;
     color: #495057;
 }
+
 .grade-table input[type="number"] {
     width: 90px;
     padding: 10px;
@@ -289,121 +335,140 @@ h1, h2, h3, h4 {
 .actions {
     white-space: nowrap;
 }
+
 .rainbow-hover {
-  font-size: 16px;
-  font-weight: 700;
-  color: #ff7576;
-  background-color: #2B3044;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  padding: 12px 24px;
-  position: relative;
-  line-height: 24px;
-  border-radius: 9px;
-  box-shadow: 0px 1px 2px #2B3044,
-    0px 4px 16px #2B3044;
-  transform-style: preserve-3d;
-  transform: scale(var(--s, 1)) perspective(600px)
-    rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  perspective: 600px;
-  transition: transform 0.1s;
+    font-size: 16px;
+    font-weight: 700;
+    color: #ff7576;
+    background-color: #2B3044;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 12px 24px;
+    position: relative;
+    line-height: 24px;
+    border-radius: 9px;
+    box-shadow: 0px 1px 2px #2B3044,
+        0px 4px 16px #2B3044;
+    transform-style: preserve-3d;
+    transform: scale(var(--s, 1)) perspective(600px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    perspective: 600px;
+    transition: transform 0.1s;
 }
 
 .sp {
-  background: linear-gradient(
-      90deg,
-      #7969c0,
+    background: linear-gradient(90deg,
+            #7969c0,
 
-    );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-decoration-color: transparent;
-  display: block;
+        );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-decoration-color: transparent;
+    display: block;
 }
 
 .rainbow-hover:active {
-  transition: 0.3s;
-  transform: scale(0.93);
+    transition: 0.3s;
+    transform: scale(0.93);
 }
-        .card {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 400px;
-        }
-        .form-section h3 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .form-section form {
-            display: flex;
-            flex-direction: column;
-        }
-        .form-section label {
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .form-section select, .form-section input {
-            padding: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .form-section button {
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            background-color: #4CAF50;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .form-section button:hover {
-            background-color: #45a049;
-        }
-        .error-message {
-            color: red;
-            text-align: center;
-            margin-top: 10px;
-        }
-        .success-message {
-            color: green;
-            text-align: center;
-            margin-top: 10px;
-        }
-        .report-form-container {
-            display: none; /* Скрываем форму отчета по умолчанию */
-            margin-top: 20px;
-        }
-        .report-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        .report-table th, .report-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        .report-table th {
-            background-color: #f2f2f2;
-        }
-        .download-btn {
-            margin-top: 20px;
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            background-color: #2196F3;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .download-btn:hover {
-            background-color: #0b7dda;
-        }
-        .show-report{
-           display: block; /* Отображаем форму отчета если show_report_form = true */
-        }
+
+.card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 400px;
+}
+
+.form-section h3 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-section form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-section label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-section select,
+.form-section input {
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-section button {
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.form-section button:hover {
+    background-color: #45a049;
+}
+
+.error-message {
+    color: red;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.success-message {
+    color: green;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.report-form-container {
+    display: none;
+    /* Скрываем форму отчета по умолчанию */
+    margin-top: 20px;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.report-table th,
+.report-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.report-table th {
+    background-color: #f2f2f2;
+}
+
+.download-btn {
+    margin-top: 20px;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #2196F3;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.download-btn:hover {
+    background-color: #0b7dda;
+}
+
+.show-report {
+    display: block;
+    /* Отображаем форму отчета если show_report_form = true */
+}

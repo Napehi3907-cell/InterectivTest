@@ -1,37 +1,35 @@
 <?php
-// create_course.php
 
-// Начало сессии
+
+
 session_start();
 
-// Включение отображения ошибок (только для разработки)
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Подключение к базе данных
-require_once '../includes/db_connect.php'; // Убедитесь, что путь к файлу правильный
 
-// Определяем корень приложения
+require_once '../includes/db_connect.php';
+
+
 define('ROOT_PATH', __DIR__ . '/');
 
-// Инициализация переменных
+
 $error_message = '';
 $success_message = '';
-// Получаем данные из базы данных
 
-// Обработка формы
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Проверяем, какая кнопка была нажата
     if (isset($_POST['create_bt'])) {
-        // Обработка создания курса
+
         $course_name = trim($_POST['course_name']);
         $course_description = trim($_POST['course_description']);
 
         if (empty($course_name) || empty($course_description)) {
             $error_message = "Пожалуйста, заполните все поля.";
         } else {
-            // SQL-запрос для создания курса
+
             $sql_create_course = "INSERT INTO Курсы (название, описание) VALUES (?, ?)";
             $params_create_course = [$course_name, $course_description];
 
@@ -78,6 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $error_message = "Неизвестное действие.";
     }
-     header("Location: http://localhost/15/your_project_folder/teacher/reposts_Html.php");
+    header("Location: http://localhost/15/your_project_folder/teacher/reposts_Html.php");
 }
 ?>

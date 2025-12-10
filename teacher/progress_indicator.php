@@ -77,6 +77,7 @@ if (isset($_GET['student_id']) && isset($_GET['course_id'])) {
 
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -92,6 +93,7 @@ if (isset($_GET['student_id']) && isset($_GET['course_id'])) {
             align-items: center;
             height: 100vh;
         }
+
         main {
             background-color: #fff;
             padding: 20px;
@@ -99,32 +101,40 @@ if (isset($_GET['student_id']) && isset($_GET['course_id'])) {
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 300px;
         }
+
         h1 {
             text-align: center;
             margin-bottom: 20px;
         }
+
         .progress-container {
             width: 100%;
             background-color: #ddd;
             border-radius: 4px;
             margin-bottom: 20px;
         }
+
         .progress-bar {
             height: 20px;
             background-color: #4CAF50;
             border-radius: 4px;
-            width: <?php echo $progress; ?>%;
+            width:
+                <?php echo $progress; ?>
+                %;
             transition: width 0.3s;
         }
+
         .progress-text {
             text-align: center;
             margin-top: 10px;
         }
+
         .error-message {
             color: red;
             text-align: center;
             margin-top: 10px;
         }
+
         .success-message {
             color: green;
             text-align: center;
@@ -132,6 +142,7 @@ if (isset($_GET['student_id']) && isset($_GET['course_id'])) {
         }
     </style>
 </head>
+
 <body>
     <main>
         <h1>Индикатор выполнения курса</h1>
@@ -159,9 +170,10 @@ if (isset($_GET['student_id']) && isset($_GET['course_id'])) {
         }
 
         // Обновляем индикатор выполнения при загрузке страницы
-        window.onload = function() {
+        window.onload = function () {
             updateProgressBar(<?php echo $progress; ?>);
         };
     </script>
 </body>
+
 </html>
