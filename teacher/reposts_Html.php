@@ -38,32 +38,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['view_report'])) {
     $course_id = trim($_POST['course_id']);
     $report_date = trim($_POST['report_date']);
 
-    // Получаем данные отчета из базы данных
-    $sql_report = "SELECT * FROM Отчеты WHERE id_курса = ? AND дата = ?";
-    $params_report = [$course_id, $report_date];
-    $stmt_report = sqlsrv_prepare($link, $sql_report, $params_report);
-
-    if ($stmt_report === false) {
-        log_sqlsrv_errors("Подготовка запроса данных отчета");
-        $error_message = "Ошибка сервера при получении данных отчета.";
-    } else {
-        if (sqlsrv_execute($stmt_report)) {
-            while ($row = sqlsrv_fetch_array($stmt_report, SQLSRV_FETCH_ASSOC)) {
-                $report_data[] = $row;
-            }
-            if(empty($report_data)){
-                $error_message = "Нет данных для выбранных параметров.";
-            } else {
-                 $success_message = "Отчет для курса с ID: $course_id и даты: $report_date успешно сформирован.";
-                $show_report_form = true;
-            }
-
-
-        } else {
-            log_sqlsrv_errors("Выполнение запроса данных отчета");
-            $error_message = "Ошибка сервера при получении данных отчета.";
+    // Получаем название курса
+    $sql_course_name = "SELECT название FROM Курсы WHERE id_курса = ?";
+    $stmt_course_name = sqlsrv_prepare($link, $sql_course_name, array($course_id));
+    $course_name = '';
+    if ($stmt_course_name && sqlsrv_execute($stmt_course_name)) {
+        $row_course_name = sqlsrv_fetch_array($stmt_course_name, SQLSRV_FETCH_ASSOC);
+        if ($row_course_name) {
+            $course_name = htmlspecialchars($row_course_name['название']);
         }
     }
+
+    // Получаем студентов
+    $sql_students = "SELECT s.id_студента, s.имя, s.фамилия
+                     FROM Студенты s
+                     JOIN Записи_на_курс z ON s.id_студента = z.id_студента
+                     WHERE z.id_курса = ?";
+    $stmt_students = sqlsrv_prepare($link, $sql_students, array($course_id));
+    $students = [];
+    if ($stmt_students && sqlsrv_execute($stmt_students)) {
+        while ($row_student = sqlsrv_fetch_array($stmt_students, SQLSRV_FETCH_ASSOC)) {
+            $students[] = $row_student;
+        }
+    }
+
+    // Получаем посещаемость
+    $sql_attendance = "SELECT id_студента, COUNT(*) AS посещаемость
+                       FROM proUR
+                       WHERE id_курса = ? AND CONVERT(DATE, data) = ?
+                       GROUP BY id_студента";
+    $stmt_attendance = sqlsrv_prepare($link, $sql_attendance, array($course_id, $report_date));
+    $attendance_data = [];
+    if ($stmt_attendance && sqlsrv_execute($stmt_attendance)) {
+        while ($row_attendance = sqlsrv_fetch_array($stmt_attendance, SQLSRV_FETCH_ASSOC)) {
+            $attendance_data[$row_attendance['id_студента']] = $row_attendance['посещаемость'];
+        }
+    }
+
+    $show_report_form = true; // показываем таблицу
 }
 ?>
 
@@ -76,18 +88,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['view_report'])) {
 </head>
 <body>
     <header>
-        <div class="nav-bar">
-            <span>Добро пожаловать, Преподователь!</span>
-            <a href="http://localhost/15/your_project_folder/Login.php">Выход</a>
-        </div>
-    </header>
-    <main>
-        <h2>Управление Отчетами</h2>
-        <p>Здесь учителя могут просматривать и сохранять отчеты по успеваемости учеников.</p>
+            <div class="nav-bar">
+        <span>Добро пожаловать, Преподаватель!</span>
+        <a href="http://localhost/15/your_project_folder/Login.php">Выход</a>
+    </div>
+</header>
+<main>
+    <h2>Управление Отчётами</h2>
+    <p>Здесь учителя могут просматривать и сохранять отчёты по успеваемости учеников.</p>
 
-       <div class="card form-section">
-        <h3>Выберите данные для отчета</h3>
+    <div class="card form-section">
+        <h3>Выберите курс и дату для отчёта о посещаемости</h3>
 
+        <!-- Вывод ошибок и сообщений -->
         <?php if (!empty($error_message)): ?>
             <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
         <?php endif; ?>
@@ -95,9 +108,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['view_report'])) {
             <div class="success-message"><?php echo htmlspecialchars($success_message); ?></div>
         <?php endif; ?>
 
+        <!-- Форма выбора курса и даты -->
         <form method="POST" action="reposts_Html.php">
             <label for="course_select">Курс:</label>
-            <select id="course_select" name="course_id" required onchange="updateDates()">
+            <select id="course_select" name="course_id" required>
                 <option value="">-- Выберите курс --</option>
                 <?php foreach ($courses as $course): ?>
                     <option value="<?php echo $course['id_курса']; ?>"><?php echo htmlspecialchars($course['название']); ?></option>
@@ -110,122 +124,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['view_report'])) {
             <button type="submit" name="view_report" class="btn">Показать отчет</button>
         </form>
 
-        <div class="report-form-container <?php if ($show_report_form) echo 'show-report'; ?>">
-            <?php if (!empty($report_data)): ?>
+        <!-- Блок с таблицей и кнопкой скачивания, отображается только при условии -->
+        <?php if (isset($_POST['view_report']) && $show_report_form): ?>
+            <div class="card">
+                <h3>Отчет о посещаемости за <span id="report_date_display"><?php echo htmlspecialchars($_POST['report_date']); ?></span> по курсу "<span id="course_name_display"><?php echo $course_name; ?></span>"</h3>
                 <table class="report-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Название</th>
-                            <th>Дата</th>
-                            <th>Значение</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($report_data as $row): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($row['id']); ?></td>
-                                <td><?php echo htmlspecialchars($row['название']); ?></td>
-                                <td><?php echo htmlspecialchars(date_format($row['дата'], 'Y-m-d')); ?></td>
-                                <td><?php echo htmlspecialchars($row['значение']); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-                <button class="download-btn" onclick="downloadReport()">Скачать отчет</button>
-            <?php endif; ?>
-        </div>
-    </div>
-
-    <script>
-        // Функция для динамического обновления списка дат
-        function updateDates() {
-            const courseSelect = document.getElementById('course_select');
-            const reportDate = document.getElementById('report_date');
-
-            reportDate.value = new Date().toISOString().split('T')[0];
-        }
-
-        // Функция для скачивания отчета
-        function downloadReport() {
-            const table = document.querySelector('.report-table');
-            if (!table) {
-                alert('Нет данных для скачивания.');
-                return;
-            }
-
-            let csv = [];
-
-            const headers = table.querySelectorAll('th');
-            let headerRow = [];
-            headers.forEach(header => {
-                headerRow.push(`"${header.innerText}"`);
-            });
-            csv.push(headerRow.join(','));
-
-            // Получаем данные таблицы
-            const rows = table.querySelectorAll('tbody tr');
-            rows.forEach(row => {
-                const cells = row.querySelectorAll('td');
-                let rowData = [];
-                cells.forEach(cell => {
-                    rowData.push(`"${cell.innerText}"`);
-                });
-                csv.push(rowData.join(','));
-            });
-
-            // Создаем CSV файл и скачиваем его
-            const csvContent = csv.join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'report.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    </script>
-
-
-        <?php if (isset($_POST['view_report'])): // Этот блок выполнится, если форма была отправлена ?>
-            <div class="card">
-                <h3>Отчет за <span id="report_date_display"><?php echo htmlspecialchars($_POST['report_date']); ?></span> по курсу "<span id="course_name_display">Название Курса</span>"</h3>
-                <table class="grade-table">
-                    <thead>
-                        <tr>
                             <th>Студент</th>
-                            <th>Оценка (0-100)</th>
+                            <th>Посещаемость</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Пример данных: в реальном приложении данные будут загружаться из БД -->
-                        <tr>
-                            <td>Петров А.С.</td>
-                            <td>
-                                <input type="number" name="grades[1][course_average]" min="0" max="100" value="85" required>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Сидорова М.К.</td>
-                            <td>
-                                <input type="number" name="grades[2][course_average]" min="0" max="100" value="92" required>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Иванов И.И.</td>
-                            <td>
-                                <input type="number" name="grades[3][course_average]" min="0" max="100" value="78" required>
-                            </td>
-                        </tr>
+                        <?php if (!empty($students)): ?>
+                            <?php foreach ($students as $student): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($student['фамилия'] . ' ' . $student['имя']); ?></td>
+                                    <td>
+                                        <?php
+                                        $attendance_count = isset($attendance_data[$student['id_студента']]) ? $attendance_data[$student['id_студента']] : 0;
+                                        echo $attendance_count;
+                                        ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="2">Студенты не найдены для этого курса.</td>
+                            </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
-                <button class="btn save-btn">Сохранить отчет</button>
+                <form method="POST" action="generate_pdf.php" target="_blank">
+                    <input type="hidden" name="course_id" value="<?php echo htmlspecialchars($course_id); ?>" />
+                    <input type="hidden" name="report_date" value="<?php echo htmlspecialchars($_POST['report_date']); ?>" />
+                    <input type="hidden" name="course_name" value="<?php echo htmlspecialchars($course_name); ?>" />
+                    <button type="submit" name="generate_pdf" class="download-btn">Скачать PDF</button>
+                </form>
             </div>
         <?php endif; ?>
-
-    </main>
+    </div>
         <main>
             <main>
                 <form method="get" action="progress_indicator.php">
