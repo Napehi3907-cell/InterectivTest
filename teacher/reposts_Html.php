@@ -1,8 +1,4 @@
 <?php
-// reports_Html.php
-
-
-// Включение отображения ошибок (только для разработки)
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -11,21 +7,20 @@ error_reporting(E_ALL);
 require_once '../includes/db_connect.php'; // Убедитесь, что путь к файлу правильный
 
 // Определяем корень приложения
-define('ROOT_PATH', realpath(__DIR__ . '/../') . '/');
-
-// Инициализация переменных
+$courses = [];
+$students = [];
+$attendance_data = [];
+$course_name = '';
+$report_date = '';
+$show_report_form = false;
 $error_message = '';
 $success_message = '';
-$courses = [];
-$report_data = [];
-$show_report_form = false; // Флаг для отображения формы отчета
 
-// Получаем данные из базы данных для списка курсов
+// Получаем список курсов
 $sql_courses = "SELECT id_курса, название FROM Курсы";
 $stmt_courses = sqlsrv_query($link, $sql_courses);
-
 if ($stmt_courses === false) {
-    log_sqlsrv_errors("Подготовка запроса списка курсов");
+    log_sqlsrv_errors("Ошибка при получении списка курсов");
     $error_message = "Ошибка сервера при получении списка курсов.";
 } else {
     while ($row = sqlsrv_fetch_array($stmt_courses, SQLSRV_FETCH_ASSOC)) {
@@ -38,20 +33,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['view_report'])) {
     $course_id = trim($_POST['course_id']);
     $report_date = trim($_POST['report_date']);
 
-    // Получаем название курса
+    // Получение названия курса
     $sql_course_name = "SELECT название FROM Курсы WHERE id_курса = ?";
     $stmt_course_name = sqlsrv_prepare($link, $sql_course_name, array($course_id));
-    $course_name = '';
     if ($stmt_course_name && sqlsrv_execute($stmt_course_name)) {
         $row_course_name = sqlsrv_fetch_array($stmt_course_name, SQLSRV_FETCH_ASSOC);
         if ($row_course_name) {
             $course_name = htmlspecialchars($row_course_name['название']);
+        } else {
+            $error_message = "Курс не найден.";
         }
+    } else {
+        $error_message = "Ошибка при получении названия курса.";
     }
 
-    // Получаем студентов
-    $sql_students = "SELECT s.id_студента, s.имя, s.фамилия
-                     FROM Студенты s
+    // Получение студентов
+    $sql_students = "SELECT s.id_студента, s.фио
+                     FROM Обучающиеся s
                      JOIN Записи_на_курс z ON s.id_студента = z.id_студента
                      WHERE z.id_курса = ?";
     $stmt_students = sqlsrv_prepare($link, $sql_students, array($course_id));
@@ -60,9 +58,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['view_report'])) {
         while ($row_student = sqlsrv_fetch_array($stmt_students, SQLSRV_FETCH_ASSOC)) {
             $students[] = $row_student;
         }
+    } else {
+        $error_message = "Ошибка при получении студентов.";
     }
 
-    // Получаем посещаемость
+    // Получение посещаемости
     $sql_attendance = "SELECT id_студента, COUNT(*) AS посещаемость
                        FROM proUR
                        WHERE id_курса = ? AND CONVERT(DATE, data) = ?
@@ -73,6 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['view_report'])) {
         while ($row_attendance = sqlsrv_fetch_array($stmt_attendance, SQLSRV_FETCH_ASSOC)) {
             $attendance_data[$row_attendance['id_студента']] = $row_attendance['посещаемость'];
         }
+    } else {
+        $error_message = "Ошибка при получении посещаемости.";
     }
 
     $show_report_form = true; // показываем таблицу
@@ -109,52 +111,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['view_report'])) {
         <?php endif; ?>
 
         <!-- Форма выбора курса и даты -->
-        <form method="POST" action="reposts_Html.php">
-            <label for="course_select">Курс:</label>
-            <select id="course_select" name="course_id" required>
-                <option value="">-- Выберите курс --</option>
-                <?php foreach ($courses as $course): ?>
-                    <option value="<?php echo $course['id_курса']; ?>"><?php echo htmlspecialchars($course['название']); ?></option>
-                <?php endforeach; ?>
-            </select>
+      <form method="POST" action="">
+    <label for="course_select">Курс:</label>
+    <select id="course_select" name="course_id" required>
+        <option value="">-- Выберите курс --</option>
+        <?php foreach ($courses as $course): ?>
+            <option value="<?php echo $course['id_курса']; ?>"
+                <?php echo (isset($_POST['course_id']) && $_POST['course_id'] == $course['id_курса']) ? 'selected' : ''; ?>>
+                <?php echo htmlspecialchars($course['название']); ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
 
-            <label for="report_date">Дата:</label>
-            <input type="date" id="report_date" name="report_date" value="<?php echo date('Y-m-d'); ?>" required>
+    <label for="report_date">Дата:</label>
+    <input type="date" id="report_date" name="report_date" value="<?php echo isset($_POST['report_date']) ? htmlspecialchars($_POST['report_date']) : date('Y-m-d'); ?>" required>
 
-            <button type="submit" name="view_report" class="btn">Показать отчет</button>
-        </form>
+    <button type="submit" name="view_report" class="btn">Показать отчет</button>
+</form>
 
-        <!-- Блок с таблицей и кнопкой скачивания, отображается только при условии -->
-        <?php if (isset($_POST['view_report']) && $show_report_form): ?>
-            <div class="card">
-                <h3>Отчет о посещаемости за <span id="report_date_display"><?php echo htmlspecialchars($_POST['report_date']); ?></span> по курсу "<span id="course_name_display"><?php echo $course_name; ?></span>"</h3>
-                <table class="report-table">
-                    <thead>
-                        <tr>
-                            <th>Студент</th>
-                            <th>Посещаемость</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (!empty($students)): ?>
-                            <?php foreach ($students as $student): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($student['фамилия'] . ' ' . $student['имя']); ?></td>
-                                    <td>
-                                        <?php
-                                        $attendance_count = isset($attendance_data[$student['id_студента']]) ? $attendance_data[$student['id_студента']] : 0;
-                                        echo $attendance_count;
-                                        ?>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="2">Студенты не найдены для этого курса.</td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+<!-- Вывод таблицы, если отчет получен -->
+<?php if ($show_report_form): ?>
+    <h2>Отчет по курсу: <?php echo htmlspecialchars($course_name); ?> за <?php echo htmlspecialchars($report_date); ?></h2>
+    <table cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ФИО студента</th>
+                <th>Посещений</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            if (empty($students)) {
+                echo "<tr><td colspan='2'>Нет студентов для выбранного курса и даты.</td></tr>";
+            } else {
+                foreach ($students as $student):
+                    $student_id = $student['id_студента'];
+                    $full_name = htmlspecialchars($student['фио']);
+                    $attendance_count = isset($attendance_data[$student_id]) ? (int)$attendance_data[$student_id] : 0;
+            ?>
+                <tr>
+                    <td><?php echo $full_name; ?></td>
+                    <td><?php echo $attendance_count; ?></td>
+                </tr>
+            <?php endforeach; ?>
+            <?php } ?>
+        </tbody>
+    </table>
+
                 <form method="POST" action="generate_pdf.php" target="_blank">
                     <input type="hidden" name="course_id" value="<?php echo htmlspecialchars($course_id); ?>" />
                     <input type="hidden" name="report_date" value="<?php echo htmlspecialchars($_POST['report_date']); ?>" />

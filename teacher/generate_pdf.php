@@ -1,26 +1,63 @@
 <?php
-// generate_pdf.php
-require_once '../includes/db_connect.php'; //  Убедитесь, что путь правильный
+// Включение отображения ошибок (только для разработки)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-// generate_pdf.php
-
-// Подключение автозагрузчика Composer
-require_once 'C:\xampp\htdocs\15\vendor\autoload.php';
+// Подключение к базе данных
+require_once 'C:\xampp\htdocs\15\vendor\autoload.php'; // путь к автозагрузчику Composer
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
+require_once '../includes/db_connect.php';
+
+
+if ($link === false) {
+    die("Ошибка подключения: " . print_r(sqlsrv_errors(), true));
+}
+
 // Получение данных из POST
-$course_id = isset($_POST['course_id']) ? $_POST['course_id'] : '';
+$course_id = isset($_POST['course_id']) ? (int) $_POST['course_id'] : 0;
 $report_date = isset($_POST['report_date']) ? $_POST['report_date'] : '';
-$course_name = isset($_POST['course_name']) ? $_POST['course_name'] : '';
 
-// Тут можно добавить дополнительные проверки на безопасность данных
+// Получение названия курса
+$sql_course = "SELECT название FROM Курсы WHERE id_курса = ?";
+$params_course = [$course_id];
 
-// В этом примере предполагается, что вы уже получили список студентов и их посещаемость
-// Передайте их через POST или получите заново из базы данных, если нужно
+$stmt_course = sqlsrv_query($link, $sql_course, $params_course);
+if ($stmt_course === false) {
+    die("Ошибка выполнения запроса курса: " . print_r(sqlsrv_errors(), true));
+}
+$row_course = sqlsrv_fetch_array($stmt_course, SQLSRV_FETCH_ASSOC);
+$course_name = $row_course['название'] ?? '';
 
-// Для примера создадим простую таблицу
+// Запрос для получения студентов и их посещений
+$sql = "
+   SELECT o.id_студента, o.фио, 
+    COUNT(p.id_pr) AS прохождение
+FROM Обучающиеся o
+LEFT JOIN proUR p 
+    ON o.id_студента = p.id_студента 
+    AND CAST(p.data AS DATE) = ?
+    AND p.id_курса = ?
+GROUP BY o.id_студента, o.фио
+ORDER BY o.фио
+";
+
+$params = [$report_date, $course_id];
+
+$stmt = sqlsrv_query($link, $sql, $params);
+if ($stmt === false) {
+    die("Ошибка выполнения запроса студентов: " . print_r(sqlsrv_errors(), true));
+}
+
+$students = [];
+while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+    $students[] = $row;
+}
+
+// Создаем HTML для генерации PDF
 $html = '
 <html>
 <head>
@@ -33,31 +70,22 @@ $html = '
     </style>
 </head>
 <body>
-    <h1>Отчёт о посещаемости</h1>
+    <h1>Отчёт о прохождение курса</h1>
     <p><strong>Курс:</strong> ' . htmlspecialchars($course_name) . '</p>
     <p><strong>Дата:</strong> ' . htmlspecialchars($report_date) . '</p>
     <table>
         <thead>
             <tr>
                 <th>Студент</th>
-                <th>Посещаемость</th>
+                <th>Кол-во прохождений</th>
             </tr>
         </thead>
         <tbody>';
 
-if (isset($_POST['students']) && isset($_POST['attendance'])) {
-    $students = $_POST['students']; // массив студентов
-    $attendance = $_POST['attendance']; // массив посещаемости
-
-    foreach ($students as $index => $student_name) {
-        $attend = htmlspecialchars($attendance[$index]);
-        $student_display = htmlspecialchars($student_name);
-        $html .= "<tr><td>{$student_display}</td><td>{$attend}</td></tr>";
-    }
-} else {
-    // Временно добавим фиктивные данные
-    $html .= "<tr><td>Иванов Иван Иванович</td><td>5</td></tr>";
-    $html .= "<tr><td>Петров Пётр Петрович</td><td>3</td></tr>";
+foreach ($students as $student) {
+    $full_name = htmlspecialchars($student['фио']);
+    $attendances = (int)$student['посещений'];
+    $html .= "<tr><td>{$full_name}</td><td>{$attendances}</td></tr>";
 }
 
 $html .= '
@@ -66,20 +94,24 @@ $html .= '
 </body>
 </html>';
 
-// Создаем экземпляр Dompdf
+// Генерация PDF
 $options = new Options();
 $options->setIsRemoteEnabled(true);
 $dompdf = new Dompdf($options);
-
 $dompdf->loadHtml($html);
 $dompdf->setPaper('A4', 'portrait');
 $dompdf->render();
 
-// Выводим PDF
-$filename = 'report_' . date('Y-m-d') . '.pdf';
+// Отправляем PDF в браузер
+$filename = 'attendence_report_' . date('Y-m-d') . '.pdf';
 
 header('Content-Type: application/pdf');
 header('Content-Disposition: inline; filename="' . $filename . '"');
 
 echo $dompdf->output();
+
+// Освобождение ресурсов
+sqlsrv_free_stmt($stmt);
+sqlsrv_free_stmt($stmt_course);
+sqlsrv_close($link);
 ?>
