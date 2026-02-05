@@ -62,9 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     } else {
                         if (sqlsrv_execute($stmt_register_user)) {
                             $success_message = "Регистрация прошла успешно! Теперь вы можете войти.";
-
+                            header("Location: http://localhost/15/your_project_folder/Registr.html");
                             $login = '';
                             $password = '';
+
                         } else {
                             log_sqlsrv_errors("Выполнение запроса регистрации пользователя");
                             $error_message = "Ошибка сервера при регистрации пользователя.";
@@ -78,18 +79,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-?>
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-
-<body>
-
-</body>
-
-</html>

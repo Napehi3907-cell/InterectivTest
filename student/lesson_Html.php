@@ -38,11 +38,13 @@ if ($stmt_courses === false) {
     <link rel="stylesheet" href="../css/style.css">
 </head>
 
-<body>
+<body class="container">
     <header>
         <div class="nav-bar">
-            <span>Добро пожаловать, Ученик!</span>
+             <span>Добро пожаловать, Ученик!</span>
+            <a href="http://localhost/15/your_project_folder/student/Name.php">Изменить имя</a>
             <a href="http://localhost/15/your_project_folder/Login.php">Выход</a>
+
         </div>
     </header>
     <main>
@@ -87,8 +89,7 @@ if ($stmt_courses === false) {
                                             echo '<li class="lesson-item">';
                                             echo '<h3>' . htmlspecialchars($lesson['название']) . '</h3>';
                                             echo '<p>' . htmlspecialchars($lesson['контент']) . '</p>';
-                                            echo '<button class="btn" onclick="startLesson(' . $lesson['id_урока'] . ')">Начать урок</button>';
-                                            echo '<button class="btn" onclick="completeLesson(' . $lesson['id_урока'] . ')">Завершить урок</button>';
+                                            echo '<a href="http://localhost/15/your_project_folder/student/Uroki.php?id_урока=' . $lesson['id_урока'] . '" class="btn">Начать урок</a>';
                                             echo '</li>';
                                         }
                                     } else {
@@ -126,30 +127,6 @@ if ($stmt_courses === false) {
                     // Здесь можно добавить код для завершения урока
                 }
             </script>
-
-            <h4>Уроки:</h4>
-            <ul class="lesson-list">
-                <li>
-                    <span class="lesson-title">Урок 1: Введение в HTML</span>
-                    <a href="#" class="btn view-btn">Смотреть</a>
-                    <span class="status completed">[ПРОЙДЕНО]</span>
-                </li>
-                <li>
-                    <span class="lesson-title">Урок 2: Основы CSS</span>
-                    <a href="#" class="btn view-btn">Смотреть</a>
-                    <span class="status completed">[ПРОЙДЕНО]</span>
-                </li>
-                <li>
-                    <span class="lesson-title">Урок 3: Введение в PHP</span>
-                    <a href="#" class="btn view-btn">Смотреть</a>
-                    <span class="status upcoming">[НЕ ПРОЙДЕНО]</span>
-                </li>
-                <li>
-                    <span class="lesson-title">Урок 4: Интерактивность</span>
-                    <a href="#" class="btn view-btn">Смотреть</a>
-                    <span class="status upcoming">[НЕ ПРОЙДЕНО]</span>
-                </li>
-            </ul>
         </div>
 
     </main>
