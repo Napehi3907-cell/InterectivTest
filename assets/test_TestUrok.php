@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Добавление урока</title>
+    <title>Добавление теста
+    </title>
   
     <style>
         /* === Общий сброс стилей === */
@@ -111,7 +112,7 @@
             box-shadow: 0 0 10px rgba(116, 86, 86, 0.1);
             max-width: 477px;
             min-width: 300px;
-            height: 505px;
+            height: 400px auto;
             margin: 30px auto;
         }
 
@@ -218,7 +219,7 @@
         <div class="nav-bar">
             <!-- Кнопка для открытия Sidebar -->
             <button class="openbtn" id="openBtn">☰ Меню</button>
-            <span>Добро пожаловать, Ученик!</span>
+            <span>Создание теста для урока</span>
         </div>
     </header>
 
@@ -226,21 +227,21 @@
     <div class="container">
         <main class="ma">
             <div class="container1">
-                 <h1>Добавление урока</h1>
+                 <h1>Создание теста для крока</h1>
                  
                 <div class="form-group">
-                    <label for="course_id">ID курса:</label>
-                    <input type="text" id="course_id" name="course_id" required>
+                    <label for="course_id">Номер урока:</label>
+                    <input type="text" id="course_id" name="course_id" title="Вставте номер урока к которому вы хотите присоединить тест!" required>
                 </div>
                 <div class="form-group">
-                    <label for="lesson_name">Название урока:</label>
+                    <label for="lesson_name">Название теста:</label>
                     <input type="text" id="lesson_name" name="lesson_name" required>
                 </div>
                 <div class="form-group">
-                    <label for="lesson_content">Содержание урока:</label>
+                    <label for="lesson_content" title="Создайте тест на стороннем ресурсе например: Yandeks Forms, Online Test Pad и т.д. Далее вставте сюда ссылку на этот тест!">Ссылка на тест:</label>
                     <textarea id="lesson_content" name="lesson_content" required></textarea>
                 </div>
-                <button type="submit" name="add_bt" class="btn">Добавление урока</button>
+                <button type="submit" title="Создайте тест на стороннем ресурсе например: Yandeks Forms, Online Test Pad и т.д. Далее вставте сюда ссылку на этот тест!" name="add_bt" class="btn">Добавление теста</button>
             </div>
         </main>
     </div>
