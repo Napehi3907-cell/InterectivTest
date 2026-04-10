@@ -480,3 +480,44 @@ h4 {
   background-repeat: repeat;
   /* Add your background pattern here */
 }
+ .sidebar {
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            background-color: #34495e;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 15px;
+        }
+
+        /* Закрытость Sidebar на небольших экранах */
+        .sidebar.closed {
+            transform: translateX(-250px);
+        }
+
+        .sidebar a {
+            padding: 15px 25px;
+            text-decoration: none;
+            font-size: 16px;
+            color: #ecf0f1;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #4a637a;
+        }
+
+        /* Крестик закрытия Sidebar */
+        .sidebar .closebtn {
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            font-size: 36px;
+            cursor: pointer;
+            color: #ecf0f1;
+            line-height: 30px;
+        }

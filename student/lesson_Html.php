@@ -1,11 +1,10 @@
 <?php
-
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // Подключение к базе данных
-require_once '../includes/db_connect.php'; // Убедитесь, что путь к файлу правильный
+require_once '../includes/db_connect.php';
 
 // Определяем корень приложения
 define('ROOT_PATH', realpath(__DIR__ . '/../') . '/');
@@ -31,7 +30,6 @@ if ($stmt_courses === false) {
 
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
     <meta charset="UTF-8">
     <title>Уроки - Ученик</title>
@@ -41,25 +39,20 @@ if ($stmt_courses === false) {
 <body class="container">
     <header>
         <div class="nav-bar">
-             <span>Добро пожаловать, Ученик!</span>
-            <a href="http://localhost/15/your_project_folder/student/Name.php">Изменить имя</a>
-            <a href="http://localhost/15/your_project_folder/Login.php">Выход</a>
-
+            <span>Добро пожаловать, Ученик!</span>
+            <a href="../student/Name.php">Изменить имя</a>
+            <a href="../Login.php">Выход</a>
         </div>
     </header>
+
     <main>
         <h2>Раздел Уроков</h2>
         <p>Здесь ученики могут выбирать и проходить интерактивные уроки.</p>
 
-        <!-- Пример: Список курсов и уроков -->
+        <!-- Список курсов и уроков -->
         <div class="card">
-            <h3>Курс: Основы Веб-разработки</h3>
-            <p>Прогресс: <strong>50%</strong></p>
-            <div class="progress-bar-container large">
-                <div class="progress-bar" style="width: 75%;"></div>
-            </div>
-
-            <main>
+            
+            <section>
                 <h1>Список курсов и уроков</h1>
 
                 <?php if (!empty($error_message)): ?>
@@ -74,63 +67,80 @@ if ($stmt_courses === false) {
                         <li class="course-item" onclick="toggleLessons(<?php echo $course['id_курса']; ?>)">
                             <h2><?php echo htmlspecialchars($course['название']); ?></h2>
                             <p><?php echo htmlspecialchars($course['описание']); ?></p>
-                            <ul class="lessons-list" id="lessons-<?php echo $course['id_курса']; ?>">
-                                <?php
-                                $sql_lessons = "SELECT id_урока, название, контент FROM Уроки WHERE id_курса = ?";
-                                $params_lessons = [$course['id_курса']];
-                                $stmt_lessons = sqlsrv_prepare($link, $sql_lessons, $params_lessons);
+                            <ul class="lessons-list" id="lessons-<?php echo $course['id_курса']; ?>" style="display: none;">
+                <?php
+                // Получаем обычные уроки
+                $sql_regular = "SELECT id_урока, название, контент FROM Уроки WHERE id_курса = ?";
+                $params_regular = [$course['id_курса']];
+                $stmt_regular = sqlsrv_prepare($link, $sql_regular, $params_regular);
+                $regularLessons = [];
+                if ($stmt_regular !== false && sqlsrv_execute($stmt_regular)) {
+                    while ($lesson = sqlsrv_fetch_array($stmt_regular, SQLSRV_FETCH_ASSOC)) {
+                $lesson['is_video'] = false;
+                $regularLessons[] = $lesson;
+            }
+        }
 
-                                if ($stmt_lessons === false) {
-                                    log_sqlsrv_errors("Подготовка запроса списка уроков");
-                                    $error_message = "Ошибка сервера при получении списка уроков.";
-                                } else {
-                                    if (sqlsrv_execute($stmt_lessons)) {
-                                        while ($lesson = sqlsrv_fetch_array($stmt_lessons, SQLSRV_FETCH_ASSOC)) {
-                                            echo '<li class="lesson-item">';
-                                            echo '<h3>' . htmlspecialchars($lesson['название']) . '</h3>';
-                                            echo '<p>' . htmlspecialchars($lesson['контент']) . '</p>';
-                                            echo '<a href="http://localhost/15/your_project_folder/student/Uroki.php?id_урока=' . $lesson['id_урока'] . '" class="btn">Начать урок</a>';
-                                            echo '</li>';
-                                        }
-                                    } else {
-                                        log_sqlsrv_errors("Выполнение запроса списка уроков");
-                                        $error_message = "Ошибка сервера при получении списка уроков.";
-                                    }
-                                }
-                                ?>
-                            </ul>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            </main>
+        // Получаем видеоуроки
+        $sql_video = "SELECT id_урока, название, контент, описание, Ссылка FROM Видео_Уроки WHERE id_курса = ?";
+        $params_video = [$course['id_курса']];
+        $stmt_video = sqlsrv_prepare($link, $sql_video, $params_video);
+        $videoLessons = [];
+        if ($stmt_video !== false && sqlsrv_execute($stmt_video)) {
+            while ($lesson = sqlsrv_fetch_array($stmt_video, SQLSRV_FETCH_ASSOC)) {
+                $lesson['is_video'] = true;
+                $videoLessons[] = $lesson;
+            }
+        }
 
-            <script>
-                // Функция для переключения отображения списка уроков
-                function toggleLessons(courseId) {
-                    const lessonsList = document.getElementById('lessons-' + courseId);
-                    if (lessonsList.style.display === 'none' || lessonsList.style.display === '') {
-                        lessonsList.style.display = 'block';
-                    } else {
-                        lessonsList.style.display = 'none';
-                    }
-                }
+        // Объединяем уроки в один массив
+        $allLessons = array_merge($regularLessons, $videoLessons);
 
-                // Функция для начала урока
-                function startLesson(lessonId) {
-                    alert('Начало урока с ID: ' + lessonId);
-                    // Здесь можно добавить код для начала урока
-                }
+        // Сортируем по ID урока
+        usort($allLessons, function($a, $b) {
+            return $a['id_урока'] - $b['id_урока'];
+        });
 
-                // Функция для завершения урока
-                function completeLesson(lessonId) {
-                    alert('Завершение урока с ID: ' + lessonId);
-                    // Здесь можно добавить код для завершения урока
-                }
-            </script>
-        </div>
+        if (!empty($allLessons)) {
+            foreach ($allLessons as $lesson) {
+                echo '<li class="lesson-item ' . ($lesson['is_video'] ? 'video-lesson' : 'regular-lesson') . '">';
+                echo '<h3>' . htmlspecialchars($lesson['название']) . '</h3>';
+                echo '<p>' . htmlspecialchars($lesson['контент']) . '</p>';
 
-    </main>
+                // Определяем URL и текст кнопки в зависимости от типа урока
+                if ($lesson['is_video']) {
+                    $url = "../student/VideoUrok.php?id_урока=" . $lesson['id_урока'];
+            $buttonText = "Смотреть видеоурок";
+        } else {
+            $url = "../student/Uroki.php?id_урока=" . $lesson['id_урока'];
+            $buttonText = "Начать урок";
+        }
 
+        echo '<a href="' . $url . '" class="btn">' . $buttonText . '</a>';
+        echo '</li>';
+            }
+        } else {
+            echo '<li class="no-lessons">В этом курсе пока нет уроков</li>';
+        }
+        ?>
+            </ul>
+        </li>
+    <?php endforeach; ?>
+</ul>
+</section>
+
+<script>
+// Функция для переключения отображения списка уроков
+function toggleLessons(courseId) {
+    const lessonsList = document.getElementById('lessons-' + courseId);
+    if (lessonsList.style.display === 'none' || lessonsList.style.display === '') {
+        lessonsList.style.display = 'block';
+    } else {
+        lessonsList.style.display = 'none';
+    }
+}
+</script>
+</div>
+</main>
 </body>
-
 </html>

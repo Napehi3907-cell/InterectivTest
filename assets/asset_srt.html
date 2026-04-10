@@ -7,20 +7,54 @@
     <title>Редактирование ФИО пользователя</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
-<header>
-    <div class="nav-bar">
-        <span>Добро пожаловать, Преподователь!</span>
-        <a href="----------------">Выход</a>
 
-    </div>
-</header>
 
-<!DOCTYPE html>
-<html lang="ru">
+
 
 <head>
     <meta charset="UTF-8">
     <title>Редактирование ФИО пользователя</title>
+     <header>
+        <div class="nav-bar">
+            <!-- Кнопка для открытия Sidebar -->
+            <button class="openbtn" id="openBtn">☰ Меню</button>
+            <span>Создание видио урока</span>
+        </div>
+    </header>
+        <div id="mySidebar" class="sidebar closed">
+        <!-- Кнопка закрытия (крестик) -->
+        <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
+        
+        <a href="#">Главная</a>
+        <a href="#">Справочники</a>
+        <a href="#">Учет операций</a>
+        <a href="#">Отчеты</a>
+        <hr style="border-color: #4a637a; margin: 10px 20px;">
+        
+        <!-- Кнопка выхода -->
+        <button name="login_as_regist" class="Regis-btn">
+            <a href="http://localhost/15/your_project_folder/teacher/reposts_Html.php" class="no-underline">
+                Выход
+            </a>
+        </button>
+    </div>
+    <script>
+        const sidebar = document.getElementById("mySidebar");
+        const openBtn = document.getElementById("openBtn");
+        const closeBtn = document.getElementById("closeBtn");
+
+        function openNav() {
+            sidebar.classList.remove("closed");
+        }
+
+        function closeNav() {
+            sidebar.classList.add("closed");
+        }
+
+        openBtn.addEventListener('click', openNav);
+        closeBtn.addEventListener('click', closeNav);
+    </script>
+
     <style>
         main {
             background-color: #fff;
@@ -125,8 +159,8 @@
         }
 
         .container1 {
-            width: 400px;
-            height: 400px;
+            width: auto;
+            height: auto;
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 10px;
@@ -146,9 +180,65 @@
             box-shadow: 0 0 10px rgba(116, 86, 86, 0.1);
             max-width: 477px;
             min-width: 300px;
-            height: 505px;
+            height: auto;
 
         }
+        .sidebar {
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            background-color: #34495e;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 15px;
+        }
+
+        /* Закрытость Sidebar на небольших экранах */
+        .sidebar.closed {
+            transform: translateX(-250px);
+        }
+
+        .sidebar a {
+            padding: 15px 25px;
+            text-decoration: none;
+            font-size: 16px;
+            color: #ecf0f1;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #4a637a;
+        }
+
+        /* Крестик закрытия Sidebar */
+        .sidebar .closebtn {
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            font-size: 36px;
+            cursor: pointer;
+            color: #ecf0f1;
+            line-height: 30px;
+        }
+        .openbtn {
+            font-size: 22px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            transition: 0.3s;
+            width: 35%;
+        }
+
+        .openbtn:hover {
+            background-color: #34495e;
+        }
+
     </style>
 </head>
 
@@ -158,7 +248,7 @@
             <div class="container1">
                 <div class="box">
                     <h3>
-                        создание курса
+                        Создание курса
                     </h3>
                     <a>
                          <button type="submit" class="Regis-btn">
@@ -180,7 +270,7 @@
                     
                 </div>
                 <div class="box"><h3>
-                        Группа
+                        Созданеи видео урока
                     </h3>
                     <a>  <button type="submit" class="Regis-btn">
                         Создание
@@ -194,7 +284,7 @@
                     </a>
                     <a>
                         <button type="submit" class="Regis-btn">
-                        Просмотр
+                        Просмотр урока
                     </button>
                     </a>
                 </div>
@@ -213,7 +303,7 @@
                     </a>
                     <a>
                         <button type="submit" class="Regis-btn">
-                        Просмотр
+                        Просмотр урока
                     </button>
                     </a>
                 </div>
