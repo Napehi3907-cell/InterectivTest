@@ -30,7 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $error_message = "Неизвестная роль пользователя.";
     }
-
+    $sql_lessons = "SELECT ФИО FROM PL WHERE id_поль = ?";
+    $params_lessons = [$course['id_поль']];
+    $stmt_lessons = sqlsrv_prepare($link, $sql_lessons, $params_lessons);
+    $lesson_id = sqlsrv_fetch_array($stmt_lessons, SQLSRV_FETCH_ASSOC);
     // Получаем данные из формы
     $login = trim($_POST['login']);
     $password = trim($_POST['password']);
@@ -84,10 +87,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Перенаправляем в зависимости от роли
 
                 if ($user['Rol'] === 'препод') {
-                    header("Location: http://localhost/15/your_project_folder/teacher/reposts_Html.php");
+                    header("Location: http://localhost/15/your_project_folder/teacher/reposts_Html.php", $lesson_id['id_поль']);
                     exit;
                 } elseif ($user['Rol'] === 'ученик') {
-                    header("Location: http://localhost/15/your_project_folder/student/lesson_Html.php");
+                    header("Location: http://localhost/15/your_project_folder/student/lesson_Html.php", $lesson_id['id_поль']);
                     exit;
                 }
             } else {
