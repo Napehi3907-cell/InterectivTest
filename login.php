@@ -25,15 +25,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Проверяем, какая кнопка была нажата
     if (isset($_POST['login_as_student'])) {
         $role = 'ученик';
+        $table = 'Обучающиеся';
+        $id_field = 'id_студента';
     } elseif (isset($_POST['login_as_teacher'])) {
         $role = 'препод';
+        $table = 'Преподаватели';
+        $id_field = 'id_преподавателя';
     } else {
         $error_message = "Неизвестная роль пользователя.";
     }
-    $sql_lessons = "SELECT ФИО FROM PL WHERE id_поль = ?";
-    $params_lessons = [$course['id_поль']];
-    $stmt_lessons = sqlsrv_prepare($link, $sql_lessons, $params_lessons);
-    $lesson_id = sqlsrv_fetch_array($stmt_lessons, SQLSRV_FETCH_ASSOC);
+
     // Получаем данные из формы
     $login = trim($_POST['login']);
     $password = trim($_POST['password']);
@@ -42,69 +43,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($login) || empty($password)) {
         $error_message = "Пожалуйста, заполните все поля.";
     } else {
-        // Запрос для проверки пользователя по таблице ПОЛЬЗОВАТЕЛЬ
-        $sql_user = "SELECT id_поль, login, Password, Rol FROM PL WHERE login = ? AND Password = ? AND Rol = ?";
-        $params_user = [$login, $password, $role];
-
-        // Отладочные сообщения
-        echo "SQL Query: " . htmlspecialchars($sql_user) . "<br>";
-        echo "Parameters: " . print_r($params_user, true) . "<br>";
+        // Запрос для проверки пользователя в соответствующей таблице
+        $sql_user = "SELECT $id_field, фио, логин, пароль FROM $table WHERE логин = ? AND пароль = ?";
+        $params_user = [$login, $password];
 
         // Использование prepare/execute для безопасности
         $stmt_user = sqlsrv_prepare($link, $sql_user, $params_user);
         if ($stmt_user === false) {
-            echo "Ошибка подготовки запроса: " . print_r(sqlsrv_errors(), true) . "<br>";
             log_sqlsrv_errors("Подготовка запроса пользователя");
             $error_message = "Ошибка сервера при проверке пользователя.";
-            $user = null;
         } else {
             if (sqlsrv_execute($stmt_user)) {
                 // Получаем результат
                 $user = sqlsrv_fetch_array($stmt_user, SQLSRV_FETCH_ASSOC);
                 if (!$user) {
-                    echo "Пользователь не найден.<br>";
                     $error_message = "Неверный логин или пароль.";
-                } else {
-                    echo "Пользователь найден: " . print_r($user, true) . "<br>";
                 }
             } else {
-                echo "Ошибка выполнения запроса: " . print_r(sqlsrv_errors(), true) . "<br>";
                 log_sqlsrv_errors("Выполнение запроса пользователя");
                 $error_message = "Ошибка сервера при проверке пользователя.";
-                $user = null;
             }
         }
 
         // Если пользователь найден
         if ($user) {
-            // Проверяем, что ключ "роль" существует в массиве $user
-            if (isset($user['Rol'])) {
-                // Сохраняем данные в сессии
-                $_SESSION['role'] = $user['Rol'];
-                $_SESSION['user_id'] = $user['id_поль'];
-                $_SESSION['login'] = $login;
+            // Сохраняем данные в сессии
+            $_SESSION['role'] = $role;
+            $_SESSION['user_id'] = $user[$id_field];
+            $_SESSION['login'] = $login;
+            $_SESSION['full_name'] = $user['фио'];
 
-                // Перенаправляем в зависимости от роли
-
-                if ($user['Rol'] === 'препод') {
-                    header("Location: http://localhost/15/your_project_folder/teacher/reposts_Html.php", $lesson_id['id_поль']);
-                    exit;
-                } elseif ($user['Rol'] === 'ученик') {
-                    header("Location: http://localhost/15/your_project_folder/student/lesson_Html.php", $lesson_id['id_поль']);
-                    exit;
-                }
-            } else {
-                echo "Ключ 'Rol' не найден в массиве \$user.<br>";
-                $error_message = "Ошибка сервера: недопустимая роль пользователя.";
+            // Перенаправляем в зависимости от роли
+            if ($role === 'препод') {
+                header("Location: http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.html");
+                exit;
+            } elseif ($role === 'ученик') {
+                header("Location: http://localhost/переделанная/15/your_project_folder/student/lesson_Html2.php");
+                exit;
             }
         }
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -181,11 +163,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             text-align: center;
             justify-content: center;
             align-items: center;
+            width: 100%;
+            margin-top: 15px;
         }
 
         .no-underline {
             text-decoration: none;
-            text-color: #ffffffff;
+            color: inherit;
+            display: block;
+            padding: 10px 0;
         }
 
         .error-message {
@@ -195,7 +181,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     </style>
 </head>
-
 <body>
     <div class="login-container">
         <h2>Авторизация</h2>
@@ -209,14 +194,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="password" id="password" name="password" required>
             </div>
             <div class="button-group">
-                <?php
-                //require "dashboard.php";
-                ?>
-                <button type="submit" name="login_as_student" class="student-btn">Войти как ученик</button>
+                <button type="submit" name="login_as_student" class="student-btn">
+                    Войти как ученик
+                </button>
                 <button type="submit" name="login_as_teacher" class="teacher-btn">Войти как учитель</button>
             </div>
-            <button onclick="" class="Registr-btn"><a href="http://localhost/15/your_project_folder/Registr.html"
-                    class="no-underline">
+            <button class="Registr-btn">
+                <a href="http://localhost/15/your_project_folder/Registr.html" class="no-underline">
                     Регистрация
                 </a>
             </button>
@@ -226,5 +210,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
     </div>
 </body>
-
 </html>

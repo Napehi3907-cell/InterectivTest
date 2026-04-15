@@ -1,3 +1,53 @@
+<?php
+// add_test.php
+
+// Начало сессии
+session_start();
+
+// Включение отображения ошибок (только для разработки)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Подключение к базе данных
+require_once '../includes/db_connect.php'; // Убедитесь, что путь к файлу правильный
+
+// Определяем корень приложения
+define('ROOT_PATH', realpath(__DIR__ . '/../') . '/');
+
+// Инициализация переменных
+$error_message = '';
+$success_message = '';
+
+// Обработка формы добавления теста
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_test'])) {
+    $lesson_id = trim($_POST['lesson_id']);
+    $test_name = trim($_POST['test_name']);
+    $test_description = trim($_POST['test_description']);
+    $test_link = trim($_POST['test_link']);
+
+    if (empty($lesson_id) || empty($test_name) || empty($test_link)) {
+        $error_message = "Пожалуйста, заполните все обязательные поля.";
+    } else {
+        // SQL-запрос для добавления теста
+        $sql_add_test = "INSERT INTO TestUr (название, описание, ссылка, id_урока) VALUES (?, ?, ?, ?)";
+        $params_add_test = [$test_name, $test_description, $test_link, $lesson_id];
+
+        $stmt_add_test = sqlsrv_prepare($link, $sql_add_test, $params_add_test);
+        if ($stmt_add_test === false) {
+            log_sqlsrv_errors("Подготовка запроса добавления теста");
+            $error_message = "Ошибка сервера при добавлении теста.";
+        } else {
+            if (sqlsrv_execute($stmt_add_test)) {
+                $success_message = "Тест добавлен успешно!";
+            } else {
+                log_sqlsrv_errors("Выполнение запроса добавления теста");
+                $error_message = "Ошибка сервера при добавлении теста.";
+            }
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -6,6 +56,7 @@
     <title>Добавление теста
     </title>
   
+    
     <style>
         /* === Общий сброс стилей === */
         * {
@@ -263,6 +314,38 @@
         openBtn.addEventListener('click', openNav);
         closeBtn.addEventListener('click', closeNav);
     </script>
+<script>
+    const sidebar = document.getElementById("mySidebar");
+    const openBtn = document.getElementById("openBtn");
+    const closeBtn = document.getElementById("closeBtn");
+    const body = document.body;
 
+    function openNav() {
+        sidebar.classList.remove("closed");
+        body.classList.add("sidebar-open");
+    }
+
+    function closeNav() {
+        sidebar.classList.add("closed");
+        body.classList.remove("sidebar-open");
+    }
+
+    openBtn.addEventListener('click', openNav);
+    closeBtn.addEventListener('click', closeNav);
+
+    // Закрытие Sidebar при клике вне его области
+    document.addEventListener('click', function(event) {
+        if (!sidebar.contains(event.target) && !openBtn.contains(event.target)) {
+            closeNav();
+        }
+    });
+
+    // Закрытие Sidebar при нажатии Escape
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeNav();
+        }
+    });
+</script>
 </body>
 </html>

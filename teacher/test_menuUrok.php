@@ -1,3 +1,53 @@
+<?php
+// add_lesson.php
+
+// Начало сессии
+session_start();
+
+// Включение отображения ошибок (только для разработки)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Подключение к базе данных
+require_once '../includes/db_connect.php'; // Убедитесь, что путь к файлу правильный
+
+// Определяем корень приложения
+define('ROOT_PATH', realpath(__DIR__ . '/../') . '/');
+
+// Инициализация переменных
+$error_message = '';
+$success_message = '';
+
+// Обработка формы
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Обработка добавления урока
+    $course_id = trim($_POST['course_id']);
+    $lesson_name = trim($_POST['lesson_name']);
+    $lesson_content = trim($_POST['lesson_content']);
+
+    if (empty($course_id) || empty($lesson_name) || empty($lesson_content)) {
+        $error_message = "Пожалуйста, заполните все поля.";
+    } else {
+        // SQL-запрос для добавления урока
+        $sql_add_lesson = "INSERT INTO Уроки (id_курса, название, контент) VALUES (?, ?, ?)";
+        $params_add_lesson = [$course_id, $lesson_name, $lesson_content];
+
+        $stmt_add_lesson = sqlsrv_prepare($link, $sql_add_lesson, $params_add_lesson);
+        if ($stmt_add_lesson === false) {
+            log_sqlsrv_errors("Подготовка запроса добавления урока");
+            $error_message = "Ошибка сервера при добавлении урока.";
+        } else {
+            if (sqlsrv_execute($stmt_add_lesson)) {
+                $success_message = "Урок добавлен успешно!";
+            } else {
+                log_sqlsrv_errors("Выполнение запроса добавления урока");
+                $error_message = "Ошибка сервера при добавлении урока.";
+            }
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -5,6 +55,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Добавление урока</title>
   
+    
     <style>
         /* === Общий сброс стилей === */
         * {
@@ -212,7 +263,29 @@
             </a>
         </button>
     </div>
+<script>
+    const sidebar = document.getElementById("mySidebar");
+    const openBtn = document.getElementById("openBtn");
+    const closeBtn = document.getElementById("closeBtn");
 
+    function openNav() {
+        sidebar.classList.remove("closed");
+    }
+
+    function closeNav() {
+        sidebar.classList.add("closed");
+    }
+
+    openBtn.addEventListener('click', openNav);
+    closeBtn.addEventListener('click', closeNav);
+
+    // Закрытие Sidebar при клике вне его области
+    document.addEventListener('click', function(event) {
+        if (!sidebar.contains(event.target) && !openBtn.contains(event.target)) {
+            closeNav();
+        }
+    });
+</script>
     <!-- 2. Шапка (Header) -->
     <header>
         <div class="nav-bar">

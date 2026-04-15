@@ -9,8 +9,6 @@
 </head>
 
 
-
-
 <head>
     <meta charset="UTF-8">
     <title>Редактирование ФИО пользователя</title>
@@ -25,15 +23,15 @@
         <!-- Кнопка закрытия (крестик) -->
         <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
         
-        <a href="#">Главная</a>
-        <a href="#">Справочники</a>
-        <a href="#">Учет операций</a>
-        <a href="#">Отчеты</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.html">Главная</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
+        <a href="#">прогресс</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/generate_pdf.php">Отчеты</a>
         <hr style="border-color: #4a637a; margin: 10px 20px;">
         
         <!-- Кнопка выхода -->
         <button name="login_as_regist" class="Regis-btn">
-            <a href="http://localhost/15/your_project_folder/teacher/reposts_Html.php" class="no-underline">
+            <a href="http://localhost/переделанная/15/your_project_folder/teacher/login.php" class="no-underline">
                 Выход
             </a>
         </button>
@@ -172,6 +170,13 @@
             text-align: center;
             font-size: 24px;
         }
+        .box1 {
+            background-color: rgb(157, 241, 195);
+            padding: 18px;
+            text-align: center;
+            font-size: 24px;
+            width: auto;
+        }
 
         .ma {
             background-color: #fff;
@@ -250,7 +255,7 @@
                     <h3>
                         Создание курса
                     </h3>
-                    <a>
+                    <a href="http://localhost/переделанная/15/your_project_folder/teacher/create_course.php">
                          <button type="submit" class="Regis-btn">
                         Создание
                     </button>
@@ -262,51 +267,29 @@
                     <h3>
                         Редактирование курса
                     </h3>
-                    <a>
+                    <a href="http://localhost/переделанная/15/your_project_folder/teacher/create_course.php">
                         <button type="submit" class="Regis-btn">
                         Редактирование
                     </button>
                     </a>
                     
                 </div>
-                <div class="box"><h3>
-                        Созданеи видео урока
+                <div class="box1"><h3>
+                        Курсы и уроки
                     </h3>
-                    <a>  <button type="submit" class="Regis-btn">
-                        Создание
+                    <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">  <button type="submit" class="Regis-btn">
+                        Курсы и уроки
                     </button>
                         
                     </a>
-                    <a>
-                        <button type="submit" class="Regis-btn">
-                        Редактирование
-                    </button>
-                    </a>
-                    <a>
-                        <button type="submit" class="Regis-btn">
-                        Просмотр урока
-                    </button>
-                    </a>
+                    
                 </div>
-                <div class="box"><h3>
-                        Создание урока
-                    </h3>
-                    <a>
-                        <button type="submit" class="Regis-btn">
-                        Создание урока
-                    </button>
-                    </a>
-                    <a>
-                         <button type="submit" class="Regis-btn">
-                        Редактирование
-                    </button>
-                    </a>
-                    <a>
-                        <button type="submit" class="Regis-btn">
-                        Просмотр урока
-                    </button>
-                    </a>
+                <div class="box">
+                <h3>Управление прогрессом учеников</h3>
+                 <button type="submit" class="Regis-btn">Отслеживать прогресс</button>
+                 <button type="submit" class="Regis-btn">Отчет</button>
                 </div>
+            
             </div>
         </main>
     </div>

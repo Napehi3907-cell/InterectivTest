@@ -521,3 +521,130 @@ h4 {
             color: #ecf0f1;
             line-height: 30px;
         }
+        .add-lesson-btn {
+    background-color: #2196F3 !important;
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.edit-btn {
+    margin-right: 10px;
+}
+
+.delete-btn {
+    margin-left: 0;
+}
+
+.lesson-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Стили для кнопок в списке уроков */
+.lesson-item .btn {
+    margin: 5px 0;
+    width: auto;
+}
+/* Стили для Sidebar */
+.sidebar {
+    height: 100vh;
+    width: 250px;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    background-color: #34495e;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 15px;
+}
+
+/* Закрытость Sidebar на небольших экранах */
+.sidebar.closed {
+    transform: translateX(-250px);
+}
+
+.sidebar a {
+    padding: 15px 25px;
+    text-decoration: none;
+    font-size: 16px;
+    color: #ecf0f1;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidebar a:hover {
+    background-color: #4a637a;
+}
+
+/* Крестик закрытия Sidebar */
+.sidebar .closebtn {
+    position: absolute;
+    top: 10px;
+    right: 25px;
+    font-size: 36px;
+    cursor: pointer;
+    color: #ecf0f1;
+    line-height: 30px;
+}
+
+/* Кнопка открытия Sidebar */
+.openbtn {
+    font-size: 22px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    transition: 0.3s;
+}
+
+.openbtn:hover {
+    background-color: #34495e;
+}
+
+/* Стили для кнопки выхода */
+.Regis-btn {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ff7576;
+    background-color: #35416d;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 12px 24px;
+    position: relative;
+    line-height: 24px;
+    border-radius: 9px;
+    box-shadow: 0px 1px 2px #333b58, 0px 4px 16px #363c55;
+    transform-style: preserve-3d;
+    transform: scale(var(--s, 1)) perspective(600px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    perspective: 600px;
+    transition: transform 0.1s;
+    width: calc(100% - 48px);
+    margin: 0 24px;
+}
+
+.Regis-btn:hover {
+    --s: 1.05;
+}
+
+.Regis-btn:active {
+    transform: translateY(2px);
+}
+
+/* Стили для ссылок внутри кнопки выхода */
+.no-underline {
+    text-decoration: none;
+    background: linear-gradient(90deg, #866ee7, #ea60da, #ed8f57, #fbd41d, #2cca91);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+    width: 100%;
+}
+
