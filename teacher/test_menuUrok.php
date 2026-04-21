@@ -250,10 +250,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- Кнопка закрытия (крестик) -->
         <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
         
-        <a href="#">Главная</a>
-        <a href="#">Справочники</a>
-        <a href="#">Учет операций</a>
-        <a href="#">Отчеты</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.html">Главная</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php">прогресс</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>
         <hr style="border-color: #4a637a; margin: 10px 20px;">
         
         <!-- Кнопка выхода -->

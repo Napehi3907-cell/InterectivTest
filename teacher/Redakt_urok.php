@@ -134,16 +134,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_lesson'])) {
     <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
     
     <!-- Пункты меню -->
-    <a href="#">Главная</a>
-    <a href="#">Уроки</a>
-    <a href="#">Прогресс</a>
-    <a href="#">Отчёты</a>
+  <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.html">Главная</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php">прогресс</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>
     
     <hr style="border-color: #4a637a; margin: 10px 20px;">
     
     <!-- Кнопка выхода -->
     <button class="Regis-btn">
-        <a href="#" class="no-underline">Выход</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/login.php" class="no-underline">Выход</a>
     </button>
 </div>
     <div class="container">
