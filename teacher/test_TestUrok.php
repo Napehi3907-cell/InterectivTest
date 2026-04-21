@@ -1,10 +1,62 @@
+<?php
+// add_test.php
+
+// Начало сессии
+session_start();
+
+// Включение отображения ошибок (только для разработки)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Подключение к базе данных
+require_once '../includes/db_connect.php'; // Убедитесь, что путь к файлу правильный
+
+// Определяем корень приложения
+define('ROOT_PATH', realpath(__DIR__ . '/../') . '/');
+
+// Инициализация переменных
+$error_message = '';
+$success_message = '';
+
+// Обработка формы добавления теста
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_test'])) {
+    $lesson_id = trim($_POST['lesson_id']);
+    $test_name = trim($_POST['test_name']);
+    $test_description = trim($_POST['test_description']);
+    $test_link = trim($_POST['test_link']);
+
+    if (empty($lesson_id) || empty($test_name) || empty($test_link)) {
+        $error_message = "Пожалуйста, заполните все обязательные поля.";
+    } else {
+        // SQL-запрос для добавления теста
+        $sql_add_test = "INSERT INTO TestUr (название, описание, ссылка, id_урока) VALUES (?, ?, ?, ?)";
+        $params_add_test = [$test_name, $test_description, $test_link, $lesson_id];
+
+        $stmt_add_test = sqlsrv_prepare($link, $sql_add_test, $params_add_test);
+        if ($stmt_add_test === false) {
+            log_sqlsrv_errors("Подготовка запроса добавления теста");
+            $error_message = "Ошибка сервера при добавлении теста.";
+        } else {
+            if (sqlsrv_execute($stmt_add_test)) {
+                $success_message = "Тест добавлен успешно!";
+            } else {
+                log_sqlsrv_errors("Выполнение запроса добавления теста");
+                $error_message = "Ошибка сервера при добавлении теста.";
+            }
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Добавление урока</title>
+    <title>Добавление теста
+    </title>
   
+    
     <style>
         /* === Общий сброс стилей === */
         * {
@@ -199,10 +251,10 @@
         <!-- Кнопка закрытия (крестик) -->
         <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
         
-        <a href="#">Главная</a>
-        <a href="#">Справочники</a>
-        <a href="#">Учет операций</a>
-        <a href="#">Отчеты</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.html">Главная</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php">прогресс</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>
         <hr style="border-color: #4a637a; margin: 10px 20px;">
         
         <!-- Кнопка выхода -->
@@ -218,7 +270,7 @@
         <div class="nav-bar">
             <!-- Кнопка для открытия Sidebar -->
             <button class="openbtn" id="openBtn">☰ Меню</button>
-            <span>Добро пожаловать, Ученик!</span>
+            <span>Создание теста для урока</span>
         </div>
     </header>
 
@@ -226,21 +278,21 @@
     <div class="container">
         <main class="ma">
             <div class="container1">
-                 <h1>Добавление урока</h1>
+                 <h1>Создание теста для крока</h1>
                  
                 <div class="form-group">
-                    <label for="course_id">Намер курса:</label>
-                    <input type="text" id="course_id" name="course_id" required>
+                    <label for="course_id">Номер урока:</label>
+                    <input type="text" id="course_id" name="course_id" title="Вставте номер урока к которому вы хотите присоединить тест!" required>
                 </div>
                 <div class="form-group">
-                    <label for="lesson_name">Название урока:</label>
+                    <label for="lesson_name">Название теста:</label>
                     <input type="text" id="lesson_name" name="lesson_name" required>
                 </div>
                 <div class="form-group">
-                    <label for="lesson_content">Содержание урока:</label>
+                    <label for="lesson_content" title="Создайте тест на стороннем ресурсе например: Yandeks Forms, Online Test Pad и т.д. Далее вставте сюда ссылку на этот тест!">Ссылка на тест:</label>
                     <textarea id="lesson_content" name="lesson_content" required></textarea>
                 </div>
-                <button type="submit" name="add_bt" class="btn">Добавление урока</button>
+                <button type="submit" title="Создайте тест на стороннем ресурсе например: Yandeks Forms, Online Test Pad и т.д. Далее вставте сюда ссылку на этот тест!" name="add_bt" class="btn">Добавление теста</button>
             </div>
         </main>
     </div>
@@ -262,6 +314,38 @@
         openBtn.addEventListener('click', openNav);
         closeBtn.addEventListener('click', closeNav);
     </script>
+<script>
+    const sidebar = document.getElementById("mySidebar");
+    const openBtn = document.getElementById("openBtn");
+    const closeBtn = document.getElementById("closeBtn");
+    const body = document.body;
 
+    function openNav() {
+        sidebar.classList.remove("closed");
+        body.classList.add("sidebar-open");
+    }
+
+    function closeNav() {
+        sidebar.classList.add("closed");
+        body.classList.remove("sidebar-open");
+    }
+
+    openBtn.addEventListener('click', openNav);
+    closeBtn.addEventListener('click', closeNav);
+
+    // Закрытие Sidebar при клике вне его области
+    document.addEventListener('click', function(event) {
+        if (!sidebar.contains(event.target) && !openBtn.contains(event.target)) {
+            closeNav();
+        }
+    });
+
+    // Закрытие Sidebar при нажатии Escape
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeNav();
+        }
+    });
+</script>
 </body>
 </html>

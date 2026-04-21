@@ -7,17 +7,33 @@
     <title>Редактирование ФИО пользователя</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
-<header>
+<body class="container">
+
+</body><header>
     <div class="nav-bar">
         <span>Добро пожаловать, Ученик!</span>
+         <button class="openbtn" id="openBtn">☰ Меню</button>
         <a href="http://localhost/15/your_project_folder/teacher/reposts_Html.php">Выход</a>
 
     </div>
 </header>
-
-<!DOCTYPE html>
-<html lang="ru">
-
+<div id="mySidebar" class="sidebar closed">
+    <!-- Кнопка закрытия (крестик) -->
+    <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
+    
+    <!-- Пункты меню -->
+   <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.html">Главная</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php">прогресс</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>
+    
+    <hr style="border-color: #4a637a; margin: 10px 20px;">
+    
+    <!-- Кнопка выхода -->
+    <button class="Regis-btn">
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/login.php" class="no-underline">Выход</a>
+    </button>
+</div>
 <head>
     <meta charset="UTF-8">
     <title>Редактирование ФИО пользователя</title>
@@ -126,7 +142,7 @@
     </style>
 </head>
 
-<body class="container">
+
     <div>
         <main>
 
@@ -174,6 +190,39 @@
             </form>
         </main>
     </div>
+    <script>
+    const sidebar = document.getElementById("mySidebar");
+    const openBtn = document.getElementById("openBtn");
+    const closeBtn = document.getElementById("closeBtn");
+    const body = document.body;
+
+    function openNav() {
+        sidebar.classList.remove("closed");
+        body.classList.add("sidebar-open");
+    }
+
+    function closeNav() {
+        sidebar.classList.add("closed");
+        body.classList.remove("sidebar-open");
+    }
+
+    openBtn.addEventListener('click', openNav);
+    closeBtn.addEventListener('click', closeNav);
+
+    // Закрытие Sidebar при клике вне его области
+    document.addEventListener('click', function(event) {
+        if (!sidebar.contains(event.target) && !openBtn.contains(event.target)) {
+            closeNav();
+        }
+    });
+
+    // Закрытие Sidebar при нажатии Escape
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeNav();
+        }
+    });
+</script>
 </body>
 
 </html>

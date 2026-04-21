@@ -1,11 +1,61 @@
+<?php
+// add_lesson.php
+
+// Начало сессии
+session_start();
+
+// Включение отображения ошибок (только для разработки)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Подключение к базе данных
+require_once '../includes/db_connect.php'; // Убедитесь, что путь к файлу правильный
+
+// Определяем корень приложения
+define('ROOT_PATH', realpath(__DIR__ . '/../') . '/');
+
+// Инициализация переменных
+$error_message = '';
+$success_message = '';
+
+// Обработка формы
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Обработка добавления урока
+    $course_id = trim($_POST['course_id']);
+    $lesson_name = trim($_POST['lesson_name']);
+    $lesson_content = trim($_POST['lesson_content']);
+
+    if (empty($course_id) || empty($lesson_name) || empty($lesson_content)) {
+        $error_message = "Пожалуйста, заполните все поля.";
+    } else {
+        // SQL-запрос для добавления урока
+        $sql_add_lesson = "INSERT INTO Уроки (id_курса, название, контент) VALUES (?, ?, ?)";
+        $params_add_lesson = [$course_id, $lesson_name, $lesson_content];
+
+        $stmt_add_lesson = sqlsrv_prepare($link, $sql_add_lesson, $params_add_lesson);
+        if ($stmt_add_lesson === false) {
+            log_sqlsrv_errors("Подготовка запроса добавления урока");
+            $error_message = "Ошибка сервера при добавлении урока.";
+        } else {
+            if (sqlsrv_execute($stmt_add_lesson)) {
+                $success_message = "Урок добавлен успешно!";
+            } else {
+                log_sqlsrv_errors("Выполнение запроса добавления урока");
+                $error_message = "Ошибка сервера при добавлении урока.";
+            }
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Добавление теста
-    </title>
+    <title>Добавление урока</title>
   
+    
     <style>
         /* === Общий сброс стилей === */
         * {
@@ -200,10 +250,10 @@
         <!-- Кнопка закрытия (крестик) -->
         <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
         
-        <a href="#">Главная</a>
-        <a href="#">Справочники</a>
-        <a href="#">Учет операций</a>
-        <a href="#">Отчеты</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.html">Главная</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php">прогресс</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>
         <hr style="border-color: #4a637a; margin: 10px 20px;">
         
         <!-- Кнопка выхода -->
@@ -213,13 +263,35 @@
             </a>
         </button>
     </div>
+<script>
+    const sidebar = document.getElementById("mySidebar");
+    const openBtn = document.getElementById("openBtn");
+    const closeBtn = document.getElementById("closeBtn");
 
+    function openNav() {
+        sidebar.classList.remove("closed");
+    }
+
+    function closeNav() {
+        sidebar.classList.add("closed");
+    }
+
+    openBtn.addEventListener('click', openNav);
+    closeBtn.addEventListener('click', closeNav);
+
+    // Закрытие Sidebar при клике вне его области
+    document.addEventListener('click', function(event) {
+        if (!sidebar.contains(event.target) && !openBtn.contains(event.target)) {
+            closeNav();
+        }
+    });
+</script>
     <!-- 2. Шапка (Header) -->
     <header>
         <div class="nav-bar">
             <!-- Кнопка для открытия Sidebar -->
             <button class="openbtn" id="openBtn">☰ Меню</button>
-            <span>Создание теста для урока</span>
+            <span>Добро пожаловать, Ученик!</span>
         </div>
     </header>
 
@@ -227,21 +299,21 @@
     <div class="container">
         <main class="ma">
             <div class="container1">
-                 <h1>Создание теста для крока</h1>
+                 <h1>Добавление урока</h1>
                  
                 <div class="form-group">
-                    <label for="course_id">Номер урока:</label>
-                    <input type="text" id="course_id" name="course_id" title="Вставте номер урока к которому вы хотите присоединить тест!" required>
+                    <label for="course_id">Намер курса:</label>
+                    <input type="text" id="course_id" name="course_id" required>
                 </div>
                 <div class="form-group">
-                    <label for="lesson_name">Название теста:</label>
+                    <label for="lesson_name">Название урока:</label>
                     <input type="text" id="lesson_name" name="lesson_name" required>
                 </div>
                 <div class="form-group">
-                    <label for="lesson_content" title="Создайте тест на стороннем ресурсе например: Yandeks Forms, Online Test Pad и т.д. Далее вставте сюда ссылку на этот тест!">Ссылка на тест:</label>
+                    <label for="lesson_content">Содержание урока:</label>
                     <textarea id="lesson_content" name="lesson_content" required></textarea>
                 </div>
-                <button type="submit" title="Создайте тест на стороннем ресурсе например: Yandeks Forms, Online Test Pad и т.д. Далее вставте сюда ссылку на этот тест!" name="add_bt" class="btn">Добавление теста</button>
+                <button type="submit" name="add_bt" class="btn">Добавление урока</button>
             </div>
         </main>
     </div>

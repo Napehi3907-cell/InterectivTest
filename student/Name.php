@@ -10,7 +10,7 @@
 <header>
     <div class="nav-bar">
         <span>Добро пожаловать, Ученик!</span>
-        <a href="http://localhost/15/your_project_folder/student/lesson_Html.php">Выход</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/student/lesson_Html.php">Выход</a>
 
     </div>
 </header>
