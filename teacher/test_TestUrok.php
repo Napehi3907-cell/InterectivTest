@@ -259,7 +259,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_test'])) {
         
         <!-- Кнопка выхода -->
         <button name="login_as_regist" class="Regis-btn">
-            <a href="http://localhost/15/your_project_folder/teacher/reposts_Html.php" class="no-underline">
+            <a href="http://localhost/15/your_project_folder/login.php" class="no-underline">
                 Выход
             </a>
         </button>

@@ -11,9 +11,10 @@
 
 </body><header>
     <div class="nav-bar">
-        <span>Добро пожаловать, Ученик!</span>
-         <button class="openbtn" id="openBtn">☰ Меню</button>
-        <a href="http://localhost/15/your_project_folder/teacher/reposts_Html.php">Выход</a>
+        <button class="openbtn" id="openBtn">☰ Меню</button>
+     
+         
+        
 
     </div>
 </header>

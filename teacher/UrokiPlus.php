@@ -83,7 +83,26 @@ if (isset($_POST['delete_lesson']) && isset($_POST['lesson_id'])) {
         }
     }
 }
+if (isset($_POST['delete_test']) && isset($_POST['test_id'])) {
+    $test_id = trim($_POST['test_id']);
 
+    // SQL‑запрос для удаления теста
+    $sql_delete_test = "DELETE FROM TestUr WHERE id_test = ?";
+    $params_delete_test = [$test_id];
+
+    $stmt_delete_test = sqlsrv_prepare($link, $sql_delete_test, $params_delete_test);
+    if ($stmt_delete_test === false) {
+        log_sqlsrv_errors("Подготовка запроса удаления теста");
+        $error_message = "Ошибка сервера при удалении теста.";
+    } else {
+        if (sqlsrv_execute($stmt_delete_test)) {
+            $success_message = "Тест удалён успешно!";
+        } else {
+            log_sqlsrv_errors("Выполнение запроса удаления теста");
+            $error_message = "Ошибка сервера при удалении теста.";
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -123,15 +142,66 @@ if (isset($_POST['delete_lesson']) && isset($_POST['lesson_id'])) {
             font-size: 0.9em;
             color: #666;
         }
+        .search-container {
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+}
+
+#courseSearch {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+#searchBtn {
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#searchBtn:hover {
+    background: #0056b3;
+}
+
+.search-results {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.search-result-item {
+    padding: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.search-result-item:hover {
+    background: #f8f9fa;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
     </style>
 </head>
 
 <body class="container">
     <header>
         <div class="nav-bar">
+            <button class="openbtn" id="openBtn">☰ Меню</button>
             <span>Просмотр прогресса учеников</span>
-              <button class="openbtn" id="openBtn">☰ Меню</button>
-            <a href="../Login.php">Выход</a>
+              
+         
         </div>
     </header>
 
@@ -149,7 +219,7 @@ if (isset($_POST['delete_lesson']) && isset($_POST['lesson_id'])) {
     
     <!-- Кнопка выхода -->
     <button class="Regis-btn">
-        <a href="http://localhost/переделанная/15/your_project_folder/teacher/login.php" class="no-underline">Выход</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/login.php" class="no-underline">Выход</a>
     </button>
 </div>
     <main>
@@ -160,6 +230,21 @@ if (isset($_POST['delete_lesson']) && isset($_POST['lesson_id'])) {
         <div class="card">
             <section>
                 <h1>Список курсов и уроков</h1>
+
+                <div class="search-container">
+    <input type="text" id="courseSearch" placeholder="Введите название курса для поиска..." aria-label="Поиск курсов">
+    <button type="button" id="searchBtn">Найти</button>
+</div>
+
+<div id="searchResults" class="search-results" style="display: none;">
+    <h3>Результаты поиска:</h3>
+    <ul id="searchResultsList"></ul>
+</div>
+
+
+
+
+
 
                 <?php if (!empty($error_message)): ?>
                     <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
@@ -287,24 +372,34 @@ if (isset($_POST['delete_lesson']) && isset($_POST['lesson_id'])) {
         }
 
                 // Выводим тесты, привязанные к урокам этого курса
-                if (!empty($tests)) {
-            echo '<li class="tests-section"><h3>Тесты к курсу:</h3><ul class="tests-list">';
-            foreach ($tests as $test) {
-                echo '<li class="test-item">';
-                echo '<h4 class="test-title">' . htmlspecialchars($test['название']) . '</h4>';
-                if (!empty($test['описание'])) {
-                    echo '<p class="test-description">' . htmlspecialchars($test['описание']) . '</p>';
-                }
-                echo '<div class="test-actions">';
-               echo '<a href="' . htmlspecialchars($test['ссылка']) . '" target="_blank"
-                       class="btn btn-test">Пройти тест</a>';
-                echo '</div>';
-                echo '</li>';
-            }
-            echo '</ul></li>';
-        } else {
-            echo '<li class="no-tests">К этому курсу пока не прикреплены тесты</li>';
+               if (!empty($tests)) {
+    echo '<li class="tests-section"><h3>Тесты к курсу:</h3><ul class="tests-list">';
+    foreach ($tests as $test) {
+        echo '<li class="test-item">';
+        echo '<h4 class="test-title">' . htmlspecialchars($test['название']) . '</h4>';
+        if (!empty($test['описание'])) {
+            echo '<p class="test-description">' . htmlspecialchars($test['описание']) . '</p>';
         }
+        echo '<div class="test-actions">';
+        echo '<a href="' . htmlspecialchars($test['ссылка']) . '" target="_blank"
+               class="btn btn-test">Пройти тест</a>';
+
+        // Форма с кнопкой удаления теста
+        echo '<form method="post" action=""
+               onsubmit="return confirm(\'Вы уверены, что хотите удалить тест «' .
+               htmlspecialchars(addslashes($test['название'])) . '»? Это действие нельзя отменить!\');"
+               style="display: inline; margin-left: 10px;">';
+        echo '<input type="hidden" name="test_id" value="' . htmlspecialchars($test['id_test']) . '">';
+        echo '<button type="submit" name="delete_test" class="btn btn-delete">Удалить тест</button>';
+        echo '</form>';
+
+        echo '</div>';
+        echo '</li>';
+    }
+    echo '</ul></li>';
+} else {
+    echo '<li class="no-tests">К этому курсу пока не прикреплены тесты</li>';
+}
         ?>
             </ul>
 
@@ -366,6 +461,98 @@ function toggleLessons(courseId) {
             closeNav();
         }
     });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const courseSearch = document.getElementById('courseSearch');
+    const searchBtn = document.getElementById('searchBtn');
+    const searchResults = document.getElementById('searchResults');
+    const searchResultsList = document.getElementById('searchResultsList');
+
+    // Получаем все курсы из DOM
+    const courseItems = document.querySelectorAll('.course-item');
+    const courseTitles = [];
+
+    courseItems.forEach(item => {
+        const titleElement = item.querySelector('h2');
+        if (titleElement) {
+            courseTitles.push({
+                title: titleElement.textContent,
+                element: item
+            });
+        }
+    });
+
+    // Функция поиска курсов
+    function searchCourses(query) {
+        searchResultsList.innerHTML = '';
+
+        if (!query.trim()) {
+            searchResults.style.display = 'none';
+            return;
+        }
+
+        const results = courseTitles.filter(course =>
+            course.title.toLowerCase().includes(query.toLowerCase())
+        );
+
+        if (results.length > 0) {
+            results.forEach(result => {
+                const li = document.createElement('li');
+                li.className = 'search-result-item';
+                li.textContent = result.title;
+                li.addEventListener('click', () => {
+                    scrollToCourse(result.element);
+                    searchResults.style.display = 'none';
+                    courseSearch.value = '';
+                });
+                searchResultsList.appendChild(li);
+            });
+            searchResults.style.display = 'block';
+        } else {
+            searchResultsList.innerHTML = '<li>Курсы не найдены</li>';
+            searchResults.style.display = 'block';
+        }
+    }
+
+    // Функция прокрутки к курсу
+    function scrollToCourse(courseElement) {
+        courseElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+
+        // Визуальный эффект выделения
+        courseElement.style.background = '#e8f4fd';
+        setTimeout(() => {
+            courseElement.style.transition = 'background 0.5s';
+            courseElement.style.background = '#f9f9f9';
+        }, 1500);
+    }
+
+    // Обработчики событий
+    searchBtn.addEventListener('click', () => {
+        searchCourses(courseSearch.value);
+    });
+
+    courseSearch.addEventListener('input', () => {
+        searchCourses(courseSearch.value);
+    });
+
+    // Закрытие результатов при клике вне области
+    document.addEventListener('click', (e) => {
+        if (!searchResults.contains(e.target) && e.target !== courseSearch && e.target !== searchBtn) {
+            searchResults.style.display = 'none';
+        }
+    });
+
+    // Поиск по нажатию Enter
+    courseSearch.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            searchCourses(courseSearch.value);
+        }
+    });
+});
 </script>
 </body>
 </html>

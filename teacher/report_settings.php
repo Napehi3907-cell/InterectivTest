@@ -17,60 +17,7 @@ while ($row = sqlsrv_fetch_array($stmt_courses, SQLSRV_FETCH_ASSOC)) {
     <title>Настройки отчёта по прогрессу курса</title>
     <link rel="stylesheet" href="../css/style.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f6f8;
-        }
-
-        /* --- Sidebar --- */
-        .sidebar {
-            height: 100vh;
-            width: 250px;
-            position: fixed;
-            z-index: 1000;
-            top: 0;
-            left: 0;
-            background-color: #34495e;
-            overflow-x: hidden;
-            transition: 0.5s;
-            padding-top: 15px;
-        }
-        .sidebar.closed {
-            transform: translateX(-250px);
-        }
-        .sidebar a {
-            padding: 15px 25px;
-            text-decoration: none;
-            font-size: 16px;
-            color: #ecf0f1;
-            display: block;
-            transition: 0.3s;
-        }
-        .sidebar a:hover {
-            background-color: #4a637a;
-        }
-        .sidebar .closebtn {
-            position: absolute;
-            top: 10px;
-            right: 25px;
-            font-size: 36px;
-            cursor: pointer;
-            color: #ecf0f1;
-        }
-
-        /* --- Кнопка открытия меню (для моб. устройств) --- */
-        .openbtn {
-            font-size: 22px;
-            cursor: pointer;
-            background: none;
-            border: none;
-            color: white;
-            padding: 5px 10px;
-            transition: 0.3s;
-        }
-
+       
         /* --- Основное содержимое (main) --- */
         main.ma {
             background-color: #fff;
@@ -110,7 +57,7 @@ while ($row = sqlsrv_fetch_array($stmt_courses, SQLSRV_FETCH_ASSOC)) {
 
          button {
              display: block; 
-             width: 100%;
+            
              padding: 10px; 
              margin-top: 10px; 
              border: none; 
@@ -121,37 +68,37 @@ while ($row = sqlsrv_fetch_array($stmt_courses, SQLSRV_FETCH_ASSOC)) {
              font-size: 16px; 
          }
 
-         button:hover {
-             background-color: #45a049; 
-         }
+       
     </style>
 </head>
 <body class="container">
     <!-- Кнопка для открытия Sidebar (на мобильных) -->
-     <header>
+    <header>
         <div class="nav-bar">
-            <!-- Кнопка для открытия Sidebar -->
             <button class="openbtn" id="openBtn">☰ Меню</button>
             <span>Создание отчета</span>
+              
+         
         </div>
     </header>
 
-    <!-- Sidebar -->
-     
-    <div id="mySidebar" class="sidebar closed">
-        <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
-        
- <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.html">Главная</a>
+<div id="mySidebar" class="sidebar closed">
+    <!-- Кнопка закрытия (крестик) -->
+    <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
+    
+    <!-- Пункты меню -->
+     <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.html">Главная</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php">прогресс</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>
-        <hr style="border-color:#4a637a; margin:10px 20px;">
-        
-        <button name="login_as_regist" class="Regis-btn">
-          <a href="http://localhost/переделанная/15/your_project_folder/teacher/login.php" class="no-underline">Выход</a>
-      </button>
-    </div>
-
+    
+    <hr style="border-color: #4a637a; margin: 10px 20px;">
+    
+    <!-- Кнопка выхода -->
+    <button class="Regis-btn">
+        <a href="http://localhost/переделанная/15/your_project_folder/login.php" class="no-underline">Выход</a>
+    </button>
+</div>
     <!-- Основное содержимое -->
     <main class="ma">
         <h1>Настройки отчёта по прогрессу курса</h1>
@@ -188,7 +135,7 @@ while ($row = sqlsrv_fetch_array($stmt_courses, SQLSRV_FETCH_ASSOC)) {
                 </select>
            </div>
         
-           <button type="submit">Сгенерировать отчёт</button>
+           <button type="button"  width: 100%;>Сгенерировать отчёт</button>
        </form>
     </main>
 

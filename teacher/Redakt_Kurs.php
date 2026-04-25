@@ -1,79 +1,88 @@
 <?php
-// Redakt_urok.php
-
 session_start();
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require_once '../includes/db_connect.php';
-define('ROOT_PATH', realpath(__DIR__ . '/../') . '/');
+
+define('ROOT_PATH', __DIR__ . '/');
 
 $error_message = '';
 $success_message = '';
-$lesson_id = $_GET['id_урока'] ?? null;
-$lesson = null;
+$courses = [];
 
-// Получаем данные урока для редактирования
-if ($lesson_id) {
-    $sql_get_lesson = "SELECT id_урока, id_курса, название, контент FROM Уроки WHERE id_урока = ?";
-    $params_get_lesson = [$lesson_id];
-    
-    $stmt_get_lesson = sqlsrv_prepare($link, $sql_get_lesson, $params_get_lesson);
-    if ($stmt_get_lesson !== false && sqlsrv_execute($stmt_get_lesson)) {
-        $lesson = sqlsrv_fetch_array($stmt_get_lesson, SQLSRV_FETCH_ASSOC);
-    } else {
-        log_sqlsrv_errors("Получение данных урока для редактирования");
-        $error_message = "Ошибка при получении данных урока.";
-    }
+// Получаем список курсов для выпадающего списка
+$sql_courses = "SELECT id_курса, название FROM Курсы ORDER BY название";
+$stmt_courses = sqlsrv_query($link, $sql_courses);
+while ($row = sqlsrv_fetch_array($stmt_courses, SQLSRV_FETCH_ASSOC)) {
+    $courses[] = $row;
 }
 
-// Обработка формы редактирования
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_lesson'])) {
-    $lesson_id = trim($_POST['lesson_id']);
-    $course_id = trim($_POST['course_id']);
-    $lesson_name = trim($_POST['lesson_name']);
-    $lesson_content = trim($_POST['lesson_content']);
+// Получаем сообщения из сессии
+if (isset($_SESSION['error_message'])) {
+    $error_message = $_SESSION['error_message'];
+    unset($_SESSION['error_message']);
+}
 
-    if (empty($course_id) || empty($lesson_name) || empty($lesson_content)) {
-        $error_message = "Пожалуйста, заполните все поля.";
+if (isset($_SESSION['success_message'])) {
+    $success_message = $_SESSION['success_message'];
+    unset($_SESSION['success_message']);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['up_bt'])) {
+    $course_id = (int)$_POST['course_id'];
+    $new_course_name = trim($_POST['new_course_name']);
+    $new_course_description = trim($_POST['new_course_description']);
+
+    if (empty($course_id) || empty($new_course_name) || empty($new_course_description)) {
+        $_SESSION['error_message'] = "Пожалуйста, заполните все поля.";
     } else {
-        // SQL-запрос для обновления урока
-        $sql_update_lesson = "UPDATE Уроки SET id_курса = ?, название = ?, контент = ? WHERE id_урока = ?";
-        $params_update_lesson = [$course_id, $lesson_name, $lesson_content, $lesson_id];
+        $sql_update_course = "UPDATE Курсы SET название = ?, описание = ? WHERE id_курса = ?";
+        $params_update_course = [$new_course_name, $new_course_description, $course_id];
 
-        $stmt_update_lesson = sqlsrv_prepare($link, $sql_update_lesson, $params_update_lesson);
-        if ($stmt_update_lesson === false) {
-            log_sqlsrv_errors("Подготовка запроса обновления урока");
-            $error_message = "Ошибка сервера при обновлении урока.";
+        $stmt_update_course = sqlsrv_prepare($link, $sql_update_course, $params_update_course);
+        if ($stmt_update_course === false) {
+            log_sqlsrv_errors("Подготовка запроса редактирования курса");
+            $_SESSION['error_message'] = "Ошибка сервера при редактировании курса.";
         } else {
-            if (sqlsrv_execute($stmt_update_lesson)) {
-                $success_message = "Урок успешно обновлён!";
-                // Обновляем данные в переменной
-                $lesson = [
-                    'id_урока' => $lesson_id,
-            'id_курса' => $course_id,
-            'название' => $lesson_name,
-            'контент' => $lesson_content
-        ];
+            if (sqlsrv_execute($stmt_update_course)) {
+                $_SESSION['success_message'] = "Курс отредактирован успешно!";
             } else {
-                log_sqlsrv_errors("Выполнение запроса обновления урока");
-                $error_message = "Ошибка сервера при обновлении урока.";
+                log_sqlsrv_errors("Выполнение запроса редактирования курса");
+                $_SESSION['error_message'] = "Ошибка сервера при редактировании курса.";
             }
         }
     }
+     if (isset($stmt_update_course)) {
+        sqlsrv_free_stmt($stmt_update_course);
+    }
+
+    // Перенаправляем на ту же страницу, чтобы избежать повторной отправки формы
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
 }
+
+// Функция для логирования ошибок SQL Server
+
+
+// Закрываем соединение с базой данных в конце скрипта
+register_shutdown_function(function() use ($link) {
+    if ($link) {
+        sqlsrv_close($link);
+    }
+});
 ?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    
     <meta charset="UTF-8">
-    <title>Редактирование урока</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <title>Редактирование курсов</title>
+     <link rel="stylesheet" href="../css/style.css">
     <style>
     
- * {
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -258,9 +267,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_lesson'])) {
         }
     </style>
 </head>
-
 <body class="container">
-    <header>
+     <header>
         <div class="nav-bar">
           
               <button class="openbtn" id="openBtn">☰ Меню</button>
@@ -285,81 +293,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_lesson'])) {
         <a href="http://localhost/переделанная/15/your_project_folder/login.php" class="no-underline">Выход</a>
     </button>
 </div>
-  <mail > 
-  <div class="ma">
-        
-            <div> 
-        <h1>Редактирование урока</h1>
+    <div class = "ma">
 
-        <?php if (!empty($error_message)): ?>
-            <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
-        <?php endif; ?>
-        <?php if (!empty($success_message)): ?>
-            <div class="success-message"><?php echo htmlspecialchars($success_message); ?></div>
-        <?php endif; ?>
+    
+    <h1>Редактирование учебных курсов</h1>
 
-        <?php if ($lesson): ?>
-            <form method="post" action="Redakt_urok.php?id_урока=<?php echo $lesson['id_урока']; ?>">
-                <input type="hidden" name="lesson_id" value="<?php echo $lesson['id_урока']; ?>">
+    <!-- Вывод сообщений об ошибках или успехе -->
+    <?php if ($error_message): ?>
+        <div class="message error"><?php echo htmlspecialchars($error_message); ?></div>
+    <?php endif; ?>
+    <?php if ($success_message): ?>
+        <div class="message success"><?php echo htmlspecialchars($success_message); ?></div>
+    <?php endif; ?>
 
-                <div class="form-group">
-                    <label for="course_id">ID курса:</label>
-                    <input type="text" id="course_id" name="course_id"
-                   value="<?php echo htmlspecialchars($lesson['id_курса']); ?>" required>
-                </div>
+    <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+        <div class="form-group">
+            <label for="course_id">Выберите курс для редактирования:</label>
+            <select id="course_id" name="course_id" required>
+                <option value="">-- Выберите курс --</option>
+                <?php foreach ($courses as $course): ?>
+                    <option value="<?php echo (int)$course['id_курса']; ?>">
+                <?php echo htmlspecialchars($course['название']); ?>
+            </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
 
-                <div class="form-group">
-                    <label for="lesson_name">Название урока:</label>
-            <input type="text" id="lesson_name" name="lesson_name"
-                   value="<?php echo htmlspecialchars($lesson['название']); ?>" required>
-                </div>
+        <div class="form-group">
+            <label for="new_course_name">Новое название курса:</label>
+            <input type="text" id="new_course_name" name="new_course_name" required>
+        </div>
 
-                <div class="form-group">
-            <label for="lesson_content">Содержание урока:</label>
-            <textarea id="lesson_content" name="lesson_content" rows="6" required><?php echo htmlspecialchars($lesson['контент']); ?></textarea>
-                </div>
+        <div class="form-group">
+            <label for="new_course_description">Новое описание курса:</label>
+            <textarea id="new_course_description" name="new_course_description" required></textarea>
+        </div>
 
-                <button type="submit" name="update_lesson">Обновить урок</button>
-            </form>
-        <?php else: ?>
-            <p>Урок не найден.</p>
-        <?php endif; ?>
-   </div> 
-
+        <button type="submit" name="up_bt">Обновить курс</button>
+    </form>
 </div>
-</mail>  
-  <script>
-    const sidebar = document.getElementById("mySidebar");
-    const openBtn = document.getElementById("openBtn");
-    const closeBtn = document.getElementById("closeBtn");
-    const body = document.body;
-
-    function openNav() {
-        sidebar.classList.remove("closed");
-        body.classList.add("sidebar-open");
-    }
-
-    function closeNav() {
-        sidebar.classList.add("closed");
-        body.classList.remove("sidebar-open");
-    }
-
-    openBtn.addEventListener('click', openNav);
-    closeBtn.addEventListener('click', closeNav);
-
-    // Закрытие Sidebar при клике вне его области
-    document.addEventListener('click', function(event) {
-        if (!sidebar.contains(event.target) && !openBtn.contains(event.target)) {
-            closeNav();
-        }
-    });
-
-    // Закрытие Sidebar при нажатии Escape
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            closeNav();
-        }
-    });
-</script>
+    
 </body>
 </html>

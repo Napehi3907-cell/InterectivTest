@@ -258,7 +258,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         <!-- Кнопка выхода -->
         <button name="login_as_regist" class="Regis-btn">
-            <a href="http://localhost/15/your_project_folder/teacher/reposts_Html.php" class="no-underline">
+            <a href="http://localhost/переделанная/15/your_project_folder/login.php" class="no-underline">
                 Выход
             </a>
         </button>
@@ -291,7 +291,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="nav-bar">
             <!-- Кнопка для открытия Sidebar -->
             <button class="openbtn" id="openBtn">☰ Меню</button>
-            <span>Добро пожаловать, Ученик!</span>
+            <span>Добавление урока!</span>
         </div>
     </header>
 

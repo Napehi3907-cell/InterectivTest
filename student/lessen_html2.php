@@ -99,6 +99,57 @@ function getCourseProgress($link, $student_id, $course_id) {
             font-size: 0.9em;
             color: #666;
         }
+        .search-container {
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+}
+
+#courseSearch {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+#searchBtn {
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#searchBtn:hover {
+    background: #0056b3;
+}
+
+.search-results {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.search-result-item {
+    padding: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.search-result-item:hover {
+    background: #f8f9fa;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
     </style>
 </head>
 
@@ -113,6 +164,16 @@ function getCourseProgress($link, $student_id, $course_id) {
 
     <main>
         <h2>Раздел Уроков</h2>
+        <div class="search-container">
+    <input type="text" id="courseSearch" placeholder="Введите название курса для поиска..." aria-label="Поиск курсов">
+    <button type="button" id="searchBtn">Найти</button>
+</div>
+
+<div id="searchResults" class="search-results" style="display: none;">
+    <h3>Результаты поиска:</h3>
+    <ul id="searchResultsList"></ul>
+</div>
+
         <p>Здесь ученики могут выбирать и проходить интерактивные уроки.</p>
 
         <!-- Список курсов и уроков -->
@@ -232,6 +293,99 @@ function toggleLessons(courseId) {
     }
 }
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const courseSearch = document.getElementById('courseSearch');
+    const searchBtn = document.getElementById('searchBtn');
+    const searchResults = document.getElementById('searchResults');
+    const searchResultsList = document.getElementById('searchResultsList');
+
+    // Получаем все курсы из DOM
+    const courseItems = document.querySelectorAll('.course-item');
+    const courseTitles = [];
+
+    courseItems.forEach(item => {
+        const titleElement = item.querySelector('h2');
+        if (titleElement) {
+            courseTitles.push({
+                title: titleElement.textContent,
+                element: item
+            });
+        }
+    });
+
+    // Функция поиска курсов
+    function searchCourses(query) {
+        searchResultsList.innerHTML = '';
+
+        if (!query.trim()) {
+            searchResults.style.display = 'none';
+            return;
+        }
+
+        const results = courseTitles.filter(course =>
+            course.title.toLowerCase().includes(query.toLowerCase())
+        );
+
+        if (results.length > 0) {
+            results.forEach(result => {
+                const li = document.createElement('li');
+                li.className = 'search-result-item';
+                li.textContent = result.title;
+                li.addEventListener('click', () => {
+                    scrollToCourse(result.element);
+                    searchResults.style.display = 'none';
+                    courseSearch.value = '';
+                });
+                searchResultsList.appendChild(li);
+            });
+            searchResults.style.display = 'block';
+        } else {
+            searchResultsList.innerHTML = '<li>Курсы не найдены</li>';
+            searchResults.style.display = 'block';
+        }
+    }
+
+    // Функция прокрутки к курсу
+    function scrollToCourse(courseElement) {
+        courseElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+
+        // Визуальный эффект выделения
+        courseElement.style.background = '#e8f4fd';
+        setTimeout(() => {
+            courseElement.style.transition = 'background 0.5s';
+            courseElement.style.background = '#f9f9f9';
+        }, 1500);
+    }
+
+    // Обработчики событий
+    searchBtn.addEventListener('click', () => {
+        searchCourses(courseSearch.value);
+    });
+
+    courseSearch.addEventListener('input', () => {
+        searchCourses(courseSearch.value);
+    });
+
+    // Закрытие результатов при клике вне области
+    document.addEventListener('click', (e) => {
+        if (!searchResults.contains(e.target) && e.target !== courseSearch && e.target !== searchBtn) {
+            searchResults.style.display = 'none';
+        }
+    });
+
+    // Поиск по нажатию Enter
+    courseSearch.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            searchCourses(courseSearch.value);
+        }
+    });
+});
+</script>
+
 </body>
 </html>
 

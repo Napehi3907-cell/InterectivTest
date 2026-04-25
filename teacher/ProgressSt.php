@@ -130,10 +130,11 @@ if ($selected_course_id) {
 <body class="container">
 
     <header>
-        <div class="nav-bar">
+        <div class="nav-bar"> 
+            <button class="openbtn" id="openBtn">☰ Меню</button>
             <span>Просмотр прогресса учеников</span>
-              <button class="openbtn" id="openBtn">☰ Меню</button>
-            <a href="../Login.php">Выход</a>
+             
+            
         </div>
     </header>
 
@@ -151,7 +152,7 @@ if ($selected_course_id) {
     
     <!-- Кнопка выхода -->
     <button class="Regis-btn">
-        <a href="http://localhost/переделанная/15/your_project_folder/teacher/login.php" class="no-underline">Выход</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/login.php" class="no-underline">Выход</a>
     </button>
 </div>
     <main>
