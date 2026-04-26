@@ -1,5 +1,6 @@
+
 <?php
-// add_test.php
+// test_vidioUrok.php
 
 // Начало сессии
 session_start();
@@ -19,40 +20,41 @@ define('ROOT_PATH', realpath(__DIR__ . '/../') . '/');
 $error_message = '';
 $success_message = '';
 
-// Получаем ID урока из GET-параметра
-$lesson_id = isset($_GET['id_урока']) ? (int) $_GET['id_урока'] : 0;
+// Получаем ID курса из GET‑параметра (исправлено: course_id вместо id_курса)
+$course_id = isset($_GET['course_id']) ? (int) $_GET['course_id'] : 0;
 
-if ($lesson_id <= 0) {
-    $error_message = "Не указан ID урока. Вернитесь к списку уроков.";
+if ($course_id <= 0) {
+    $error_message = "Не указан ID курса. Вернитесь к списку курсов.";
 }
 
-// Обработка формы добавления теста
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_test'])) {
+// Обработка формы добавления видеоурока
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_video_lesson'])) {
     // Проверяем соединение с БД
     if ($link === false) {
         $error_message = "Ошибка подключения к базе данных.";
     } else {
-        $test_name = trim($_POST['test_name']);
-        $test_description = trim($_POST['test_description']);
-        $test_link = trim($_POST['test_link']);
+        $lesson_name = trim($_POST['lesson_name']);
+        $lesson_content = trim($_POST['lesson_content']);
+        $lesson_description = trim($_POST['lesson_description']);
+        $video_link = trim($_POST['video_link']);
 
-        if (empty($test_name) || empty($test_link)) {
+        if (empty($lesson_name) || empty($video_link)) {
             $error_message = "Пожалуйста, заполните все обязательные поля.";
         } else {
-            // SQL-запрос для добавления теста
-            $sql_add_test = "INSERT INTO TestUr (название, описание, ссылка, id_урока) VALUES (?, ?, ?, ?)";
-            $params_add_test = [$test_name, $test_description, $test_link, $lesson_id];
+            // SQL‑запрос для добавления видеоурока
+            $sql_add_lesson = "INSERT INTO Видео_Уроки (название, контент, описание, Ссылка, id_курса) VALUES (?, ?, ?, ?, ?)";
+            $params_add_lesson = [$lesson_name, $lesson_content, $lesson_description, $video_link, $course_id];
 
-            $stmt_add_test = sqlsrv_prepare($link, $sql_add_test, $params_add_test);
-            if ($stmt_add_test === false) {
-                $error_message = "Ошибка сервера при подготовке запроса.";
+            $stmt_add_lesson = sqlsrv_prepare($link, $sql_add_lesson, $params_add_lesson);
+            if ($stmt_add_lesson === false) {
+                $error_message = "Ошибка сервера при подготовке запроса: " . print_r(sqlsrv_errors(), true);
             } else {
-                if (sqlsrv_execute($stmt_add_test)) {
-                    $success_message = "Тест добавлен успешно!";
+                if (sqlsrv_execute($stmt_add_lesson)) {
+                    $success_message = "Видеоурок добавлен успешно!";
                     // Очищаем поля формы после успешного добавления
-                    $test_name = $test_description = $test_link = '';
+                    $lesson_name = $lesson_content = $lesson_description = $video_link = '';
                 } else {
-                    $error_message = "Ошибка сервера при добавлении теста.";
+                    $error_message = "Ошибка сервера при добавлении видеоурока: " . print_r(sqlsrv_errors(), true);
                 }
             }
         }
@@ -65,9 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_test'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Добавление теста
-    </title>
-
+    <title>Добавление видеоурока</title>
 
     <style>
         /* === Общий сброс стилей === */
@@ -260,9 +260,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_test'])) {
 </head>
 
 <body class="container">
-
-    <!-- 1. Боковая панель (SideBar) -->
-    <div id="mySidebar" class="sidebar closed">
+    <!-- Sidebar (боковая панель навигации) -->
+     <div id="mySidebar" class="sidebar closed">
         <!-- Кнопка закрытия (крестик) -->
         <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
 
@@ -285,61 +284,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_test'])) {
         <div class="nav-bar">
             <!-- Кнопка для открытия Sidebar -->
             <button class="openbtn" id="openBtn">☰ Меню</button>
-            <span>Создание теста для урока</span>
+            <span>Добавление видеоурока</span>
         </div>
     </header>
 
-    <!-- 3. Основной контент -->
-    <div class="container">
-        <main class="ma">
-            <h1>Создание теста для урока</h1>
 
-            <!-- Отображение сообщений -->
-            <?php if (!empty($error_message)): ?>
-                <div style="color: red; margin-bottom: 15px;"><?php echo htmlspecialchars($error_message); ?></div>
-            <?php endif; ?>
-            <?php if (!empty($success_message)): ?>
-                <div style="color: green; margin-bottom: 15px;"><?php echo htmlspecialchars($success_message); ?></div>
-            <?php endif; ?>
+    <!-- Основной контент -->
+    <main class="ma">
+        <?php
+        // Вывод сообщений об ошибках или успехе
+        if (!empty($error_message)) {
+            echo '<div class="error">' . htmlspecialchars($error_message) . '</div>';
+        }
+        if (!empty($success_message)) {
+            echo '<div class="success">' . htmlspecialchars($success_message) . '</div>';
+        }
+        ?>
 
-            <form method="POST" action="">
-                <div class="form-group">
-                    <label for="test_name">Название теста *</label>
-                    <input type="text" id="test_name" name="test_name"
-                        value="<?php echo htmlspecialchars($test_name ?? ''); ?>" placeholder="Введите название теста"
-                        required>
-                </div>
+        <form method="POST" action="">
+            <div class="form-group">
+                <label for="lesson_name">Название урока *</label>
+                <input type="text" id="lesson_name" name="lesson_name"
+                    value="<?php echo htmlspecialchars($lesson_name ?? ''); ?>" required>
+            </div>
 
-                <div class="form-group">
-                    <label for="test_description">Описание теста</label>
-                    <textarea id="test_description" name="test_description"
-                        placeholder="Краткое описание теста (необязательно)">
-<?php echo htmlspecialchars($test_description ?? ''); ?>
-</textarea>
-                </div>
+            <div class="form-group">
+                <label for="lesson_description">Описание урока</label>
+                <textarea id="lesson_description" name="lesson_description"
+                    rows="4"><?php echo htmlspecialchars($lesson_description ?? ''); ?></textarea>
+            </div>
 
-                <div class="form-group">
-                    <label for="test_link"
-                        title="Создайте тест на стороннем ресурсе (например, Яндекс Формы, Online Test Pad и т. д.), затем вставьте сюда ссылку на этот тест!">Ссылка
-                        на тест *</label>
-                    <input type="text" id="test_link" name="test_link"
-                        value="<?php echo htmlspecialchars($test_link ?? ''); ?>" placeholder="Вставьте ссылку на тест"
-                        required>
-                </div>
+            <div class="form-group">
+                <label for="lesson_content">Содержание урока</label>
+                <textarea id="lesson_content" name="lesson_content"
+                    rows="6"><?php echo htmlspecialchars($lesson_content ?? ''); ?></textarea>
+            </div>
 
-                <input type="hidden" name="id_урока" value="<?php echo $lesson_id; ?>">
+            <div class="form-group">
+                <label for="video_link">Ссылка на видео *</label>
+                <input type="text" id="video_link" name="video_link"
+                    value="<?php echo htmlspecialchars($video_link ?? ''); ?>" required
+                    placeholder="https://www.youtube.com/watch?v=...">
+            </div>
 
-                <div class="form-group">
-                    <button type="submit" name="add_test" class="btn">Добавление теста</button>
-                    <a href="UrokiPlus.php?id=<?php echo $lesson_id; ?>">
-                        <button type="button" class="submit">Отмена</button>
-                    </a>
-                </div>
-            </form>
-        </main>
-    </div>
+            <input type="hidden" name="add_video_lesson" value="1">
+            <button type="submit" class="Regis-btn">Добавить видеоурок</button>
+        </form>
 
-    <!-- 4. Логика открытия Sidebar -->
+        
+    </main>
+
     <script>
         const sidebar = document.getElementById("mySidebar");
         const openBtn = document.getElementById("openBtn");

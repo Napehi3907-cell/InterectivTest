@@ -1,185 +1,257 @@
 <!DOCTYPE html>
 <html lang="ru">
-
-<head>
-
-    <meta charset="UTF-8">
-    <title>Редактирование ФИО пользователя</title>
-    <link rel="stylesheet" href="../css/style.css">
-</head>
-<header>
-    <div class="nav-bar">
-        <span>Добро пожаловать, Ученик!</span>
-        <a href="----------------">Выход</a>
-
-    </div>
-</header>
-
-<!DOCTYPE html>
-<html lang="ru">
-
 <head>
     <meta charset="UTF-8">
-    <title>Редактирование ФИО пользователя</title>
+    <title>Интерактивная образовательная платформа</title>
     <style>
-        main {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 300px;
-            min-width: 300px;
+        body {
+            font-family: Arial, sans-serif;
+            background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABQSURBVHja7cExAQAAAMKg9I/BAAAAAElFTkSuQmCC") repeat;
+            margin: 0;
+            padding: 0;
         }
 
-        h1 {
+        /* Стили навигационной панели */
+        .nav-bar {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-bar button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        /* Стили боковой панели */
+        .sidebar {
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            background-color: #34495e;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 15px;
+        }
+        .sidebar.closed {
+            transform: translateX(-250px);
+        }
+        .sidebar a {
+            padding: 15px 25px;
+            text-decoration: none;
+            font-size: 16px;
+            color: #ecf0f1;
+            display: block;
+            transition: 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #4a637a;
+        }
+        .sidebar .closebtn {
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            font-size: 36px;
+            cursor: pointer;
+            color: #ecf0f1;
+        }
+        .openbtn {
+            font-size: 22px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            transition: 0.3s;
+            width: 35%;
+        }
+        .openbtn:hover {
+            background-color: #34495e;
+        }
+
+        /* Стили карточек */
+        .container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            padding: 20px;
+            margin-left: 250px; /* Отступ для боковой панели */
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background-color: #d1e9ff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .card-desc {
+            color: #666;
+            font-size: 14px;
             text-align: center;
             margin-bottom: 20px;
         }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        input[type="text"],
-        textarea {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: none;
-            border-radius: 4px;
+        .card-btn {
             background-color: #4CAF50;
             color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            width: 100%;
         }
-
-        .btn:hover {
+        .card-btn:hover {
             background-color: #45a049;
         }
 
-        .error-message {
-            color: red;
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        .success-message {
-            color: green;
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        .Regis-btn {
-            font-size: 16px;
-            font-weight: bold;
-            color: #ff7576;
-            background-color: #35416d;
-            border: none;
-            outline: none;
-            cursor: pointer;
-            padding: 12px 24px;
-            position: relative;
-            line-height: 24px;
-            border-radius: 9px;
-            box-shadow: 0px 1px 2px #333b58, 0px 4px 16px #363c55;
-            transform-style: preserve-3d;
-            transform: scale(var(--s, 1)) perspective(600px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-            perspective: 600px;
-            transition: transform 0.1s;
-        }
-
-        .Regis-btn:hover {
-            --s: 1.05;
-        }
-
-        .Regis-btn:active {
-            transform: translateY(2px);
-        }
-
-        .no-underline {
-            text-decoration: none;
-            background: linear-gradient(90deg, #866ee7, #ea60da, #ed8f57, #fbd41d, #2cca91);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            display: inline-block;
-        }
-
-        .rainbow-hover:active {
-            transition: 0.3s;
-            transform: scale(0.93);
-        }
-
-        .container1 {
-            width: 400px;
-            height: 400px;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        .box {
-            background-color: rgb(157, 241, 195);
-            padding: 18px;
-            text-align: center;
-            font-size: 24px;
-        }
-
-        .ma {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(116, 86, 86, 0.1);
-            max-width: 477px;
-            min-width: 300px;
-            height: 505px;
-
-        }
+        /* Дополнительные иконки для карточек */
+        .green-icon { background-color: #aaffaa; }
+        .blue-icon { background-color: #bbdefb; }
+        .purple-icon { background-color: #e1bee7; }
+        .yellow-icon { background-color: #fff59d; }
     </style>
 </head>
-
-<body class="container">
-    <div class=>
-        <main class="ma">
-            <div class="container1">
-                 <h1>Добавление урока</h1>
-            <div class="form-group">
-                <label for="course_id">ID курса:</label>
-                <input type="text" id="course_id" name="course_id" required>
-            </div>
-            <div class="form-group">
-                <label for="lesson_name">Название урока:</label>
-                <input type="text" id="lesson_name" name="lesson_name" required>
-            </div>
-            <div class="form-group">
-                <label for="lesson_content">Содержание урока:</label>
-                <textarea id="lesson_content" name="lesson_content" required></textarea>
-            </div>
-            <button type="submit" name="add_bt" class="btn">Добавление урока</button>
-            <button name="login_as_regist" class="Regis-btn">
-                <a Href="http://localhost/15/your_project_folder/teacher/reposts_Html.php" class="no-underline">
-                    Выход
-                </a>
-            </button>
-            </div>
-        </main>
+<body>
+    <!-- Боковая панель -->
+    <div id="mySidebar" class="sidebar closed">
+        <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
+        <a href="/teacher/asset_srt.html">Главная</a>
+        <a href="/teacher/UrokiPlus.php">Уроки</a>
+        <a href="/teacher/ProgressSt.php">Прогресс</a>
+        <a href="/teacher/report_settings.php">Отчёты</a>
+        <hr style="border-color: #4a637a; margin: 10px 20px;">
+        <a href="/login.php" class="Regis-btn">Выход</a>
     </div>
+
+    <!-- Верхняя панель навигации -->
+    <div class="nav-bar">
+        <button class="openbtn" id="openBtn">☰ Меню</button>
+        <span>Создание видео урока</span>
+    </div>
+
+    <!-- Основной контент с карточками -->
+    <div class="container">
+        <div class="card">
+            <div class="card-icon green-icon">🎓</div>
+            <h3 class="card-title">Создание курса</h3>
+            <p class="card-desc">Создайте новый образовательный курс</p>
+            <a href="/teacher/create_course.php">
+                <button type="button" class="card-btn">Создать курс</button>
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-icon blue-icon">✏️</div>
+            <h3 class="card-title">Редактирование курса</h3>
+            <p class="card-desc">Измените существующие курсы</p>
+            <a href="/teacher/Redakt_Kurs.php">
+                <button type="button" class="card-btn">Редактировать</button>
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-icon purple-icon">📚</div>
+            <h3 class="card-title">Курсы и уроки</h3>
+            <p class="card-desc">Просмотр всех доступных курсов</p>
+            <a href="/teacher/UrokiPlus.php">
+                <button type="button" class="card-btn">Курсы и уроки</button>
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-icon yellow-icon">📊</div>
+            <h3 class="card-title">Управление прогрессом учеников</h3>
+            <p class="card-desc">Отслеживание прогресса учащихся по курсам</p>
+            <a href="/teacher/ProgressSt.php">
+                <button type="button" class="card-btn">Прогресс учеников</button>
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-icon green-icon">📋</div>
+            <h3 class="card-title">Создание уроков</h3>
+            <p class="card-desc">Добавьте новые уроки и материалы к курсам</p>
+            <a href="/teacher/create_lesson.php">
+                <button type="button" class="card-btn">Создать урок</button>
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-icon blue-icon">📝</div>
+            <h3 class="card-title">Тестирование</h3>
+            <p class="card-desc">Создайте тесты и контрольные работы для проверки знаний</p>
+            <a href="/teacher/create_test.php">
+                <button type="button" class="card-btn">Создать тест</button>
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-icon purple-icon">📊</div>
+            <h3 class="card-title">Отчётность</h3>
+            <p class="card-desc">Формирование отчётов по успеваемости и прогрессу</p>
+            <a href="/teacher/report_settings.php">
+                <button type="button" class="card-btn">Сформировать отчёт</button>
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-icon yellow-icon">👥</div>
+            <h3 class="card-title">Управление пользователями</h3>
+            <p class="card-desc">Добавление и редактирование профилей учащихся и преподавателей</p>
+            <a href="/teacher/manage_users.php">
+                <button type="button" class="card-btn">Управление пользователями</button>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript для управления боковой панелью
+        document.getElementById('openBtn').addEventListener('click', function() {
+            document.getElementById('mySidebar').classList.remove('closed');
+        });
+
+        document.getElementById('closeBtn').addEventListener('click', function() {
+            document.getElementById('mySidebar').classList.add('closed');
+        });
+
+        // Закрытие боковой панели при клике вне её области
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('mySidebar');
+            const openBtn = document.getElementById('openBtn');
+
+            if (!sidebar.contains(event.target) &&
+                !openBtn.contains(event.target) &&
+                !sidebar.classList.contains('closed')) {
+                sidebar.classList.add('closed');
+            }
+        });
+    </script>
 </body>
-
-</html>
-
 </html>

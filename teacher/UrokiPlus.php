@@ -280,7 +280,12 @@ if (isset($_POST['delete_test']) && isset($_POST['test_id'])) {
                    class="btn add-lesson-btn">
                     Добавить урок
                 </a>
+                <a href="../teacher/test_vidioUrok.php?course_id=<?php echo $course['id_курса']; ?>"
+                   class="btn add-lesson-btn">
+                    Добавить видеоурок
+                </a>
             </div>
+            
 
             <!-- Список уроков внутри курса -->
             <ul class="lessons-list" id="lessons-<?php echo $course['id_курса']; ?>" style="display: none;">
@@ -352,6 +357,8 @@ if (isset($_POST['delete_test']) && isset($_POST['test_id'])) {
         // Блок с кнопками
         echo '<div class="lesson-actions">';
         // Кнопка для студентов
+        echo '<a href="test_TestUrok.php?id_урока='. htmlspecialchars($lesson['id_урока']) .'"
+               class="btn btn-edit">Добавить тест к уроку</a>';
         echo '<a href="' . $url . '" class="btn btn-primary">' . $buttonText . '</a>';
         // Кнопка редактирования
         echo '<a href="Redakt_urok.php?id_урока=' . htmlspecialchars($lesson['id_урока']) . '"

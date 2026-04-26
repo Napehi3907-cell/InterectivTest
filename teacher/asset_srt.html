@@ -183,7 +183,7 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(116, 86, 86, 0.1);
-            max-width: 477px;
+            max-width: max-content;
             min-width: 300px;
             height: auto;
 
@@ -252,9 +252,9 @@
         <main class="ma">
             <div class="container1">
                 <div class="box">
-                    <h3>
-                        Создание курса
-                    </h3>
+                   <div class="card-icon green-icon">🎓</div>
+            <h3 class="card-title">Создание курса</h3>
+            <p class="card-desc">Создайте новый образовательный курс</p>
                     <a href="http://localhost/переделанная/15/your_project_folder/teacher/create_course.php">
                          <button type="submit" class="Regis-btn">
                         Создание
@@ -264,9 +264,9 @@
 
                 </div>
                 <div class="box">
-                    <h3>
-                        Редактирование курса
-                    </h3>
+                    <div class="card-icon blue-icon">✏️</div>
+            <h3 class="card-title">Редактирование курса</h3>
+            <p class="card-desc">Измените существующие курсы</p>
                     <a href="http://localhost/переделанная/15/your_project_folder/teacher/Redakt_Kurs.php">
                         <button type="submit" class="Regis-btn">
                         Редактирование
@@ -274,9 +274,10 @@
                     </a>
                     
                 </div>
-                <div class="box1"><h3>
-                        Курсы и уроки
-                    </h3>
+                <div class="box1">
+                    <div class="card-icon purple-icon">📚</div>
+            <h3 class="card-title">Курсы и уроки</h3>
+            <p class="card-desc">Просмотр всех доступных курсов</p>
                     <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">  <button type="submit" class="Regis-btn">
                         Курсы и уроки
                     </button>
@@ -285,7 +286,9 @@
                     
                 </div>
                 <div class="box">
-                <h3>Управление прогрессом учеников</h3>
+              <div class="card-icon yellow-icon">📊</div>
+            <h3 class="card-title">Управление прогрессом учеников</h3>
+            <p class="card-desc">Отслеживание прогресса учащихся по курсам</p>
                 <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php"> 
                  <button type="submit" class="Regis-btn">Отслеживать прогресс</button>
 </a>

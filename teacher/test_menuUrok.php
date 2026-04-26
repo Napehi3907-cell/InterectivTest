@@ -10,7 +10,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // Подключение к базе данных
-require_once '../includes/db_connect.php'; // Убедитесь, что путь к файлу правильный
+require_once '../includes/db_connect.php';
 
 // Определяем корень приложения
 define('ROOT_PATH', realpath(__DIR__ . '/../') . '/');
@@ -18,31 +18,45 @@ define('ROOT_PATH', realpath(__DIR__ . '/../') . '/');
 // Инициализация переменных
 $error_message = '';
 $success_message = '';
+$lesson_name = '';
+$lesson_content = '';
 
-// Обработка формы
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Обработка добавления урока
-    $course_id = trim($_POST['course_id']);
-    $lesson_name = trim($_POST['lesson_name']);
-    $lesson_content = trim($_POST['lesson_content']);
+// Получаем course_id из URL (GET-параметр)
+$course_id = isset($_GET['course_id']) ? (int) $_GET['course_id'] : 0;
 
-    if (empty($course_id) || empty($lesson_name) || empty($lesson_content)) {
-        $error_message = "Пожалуйста, заполните все поля.";
+if ($course_id <= 0) {
+    $error_message = "Не указан ID курса. Вернитесь к списку курсов.";
+}
+
+// Обработка формы добавления урока
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_lesson'])) {
+    // Проверяем соединение с БД
+    if ($link === false) {
+        $error_message = "Ошибка подключения к базе данных.";
     } else {
-        // SQL-запрос для добавления урока
-        $sql_add_lesson = "INSERT INTO Уроки (id_курса, название, контент) VALUES (?, ?, ?)";
-        $params_add_lesson = [$course_id, $lesson_name, $lesson_content];
+        $lesson_name = trim($_POST['lesson_name']);
+        $lesson_content = trim($_POST['lesson_content']);
+        $course_id = (int)$_POST['course_id']; // Получаем ID из формы
 
-        $stmt_add_lesson = sqlsrv_prepare($link, $sql_add_lesson, $params_add_lesson);
-        if ($stmt_add_lesson === false) {
-            log_sqlsrv_errors("Подготовка запроса добавления урока");
-            $error_message = "Ошибка сервера при добавлении урока.";
+        if (empty($lesson_name) || empty($lesson_content)) {
+            $error_message = "Пожалуйста, заполните все обязательные поля.";
         } else {
-            if (sqlsrv_execute($stmt_add_lesson)) {
-                $success_message = "Урок добавлен успешно!";
+            // SQL-запрос для добавления урока
+            $sql_add_lesson = "INSERT INTO Уроки (id_курса, название, контент) VALUES (?, ?, ?)";
+            $params_add_lesson = [$course_id, $lesson_name, $lesson_content];
+
+            $stmt_add_lesson = sqlsrv_prepare($link, $sql_add_lesson, $params_add_lesson);
+            if ($stmt_add_lesson === false) {
+                $error_message = "Ошибка сервера при подготовке запроса.";
             } else {
-                log_sqlsrv_errors("Выполнение запроса добавления урока");
-                $error_message = "Ошибка сервера при добавлении урока.";
+                if (sqlsrv_execute($stmt_add_lesson)) {
+                    $success_message = "Урок добавлен успешно!";
+                    // Очищаем поля формы после успешного добавления
+                    $lesson_name = '';
+                    $lesson_content = '';
+                } else {
+                    $error_message = "Ошибка сервера при добавлении урока.";
+                }
             }
         }
     }
@@ -54,10 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Добавление урока</title>
-  
-    
-    <style>
-        /* === Общий сброс стилей === */
+   <style> /* === Общий сброс стилей === */
         * {
             margin: 0;
             padding: 0;
@@ -244,8 +255,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body class="container">
-
-    <!-- 1. Боковая панель (SideBar) -->
+  <header>
+        <div class="nav-bar">
+            <button class="openbtn" id="openBtn">☰ Меню</button>
+            <span>Создание теста для урока</span>
+        </div>
+    </header>
     <div id="mySidebar" class="sidebar closed">
         <!-- Кнопка закрытия (крестик) -->
         <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
@@ -258,68 +273,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         <!-- Кнопка выхода -->
         <button name="login_as_regist" class="Regis-btn">
-            <a href="http://localhost/переделанная/15/your_project_folder/login.php" class="no-underline">
+            <a href="http://localhost/15/your_project_folder/login.php" class="no-underline">
                 Выход
             </a>
         </button>
     </div>
-<script>
-    const sidebar = document.getElementById("mySidebar");
-    const openBtn = document.getElementById("openBtn");
-    const closeBtn = document.getElementById("closeBtn");
 
-    function openNav() {
-        sidebar.classList.remove("closed");
-    }
-
-    function closeNav() {
-        sidebar.classList.add("closed");
-    }
-
-    openBtn.addEventListener('click', openNav);
-    closeBtn.addEventListener('click', closeNav);
-
-    // Закрытие Sidebar при клике вне его области
-    document.addEventListener('click', function(event) {
-        if (!sidebar.contains(event.target) && !openBtn.contains(event.target)) {
-            closeNav();
-        }
-    });
-</script>
     <!-- 2. Шапка (Header) -->
-    <header>
-        <div class="nav-bar">
-            <!-- Кнопка для открытия Sidebar -->
-            <button class="openbtn" id="openBtn">☰ Меню</button>
-            <span>Добавление урока!</span>
-        </div>
-    </header>
+   
+
+    <!-- 2. Шапка (Header) -->
+   
 
     <!-- 3. Основной контент -->
-    <div class="container">
-        <main class="ma">
-            <div class="container1">
-                 <h1>Добавление урока</h1>
-                 
-                <div class="form-group">
-                    <label for="course_id">Намер курса:</label>
-                    <input type="text" id="course_id" name="course_id" required>
-                </div>
-                <div class="form-group">
-                    <label for="lesson_name">Название урока:</label>
-                    <input type="text" id="lesson_name" name="lesson_name" required>
-                </div>
-                <div class="form-group">
-                    <label for="lesson_content">Содержание урока:</label>
-                    <textarea id="lesson_content" name="lesson_content" required></textarea>
-                </div>
-                <button type="submit" name="add_bt" class="btn">Добавление урока</button>
-            </div>
-        </main>
+    <div class="container1">
+       <main class="ma">
+           <?php if (!empty($error_message)): ?>
+               <div class="error"><?php echo htmlspecialchars($error_message); ?></div>
+           <?php endif; ?>
+           <?php if (!empty($success_message)): ?>
+               <div class="success"><?php echo htmlspecialchars($success_message); ?></div>
+           <?php endif; ?>
+           
+           <!-- Форма для добавления урока -->
+           <form method="POST" action=""> <!-- Форма отправляет данные на эту же страницу -->
+               <input type="hidden" name="course_id" value="<?php echo htmlspecialchars((string)$course_id); ?>">
+               
+               <div class="form-group">
+                   <label for="lesson_name">Название урока *</label>
+                   <input type="text" id="lesson_name" name="lesson_name"
+                          value="<?php echo htmlspecialchars($lesson_name); ?>"
+                          placeholder="Введите название урока"
+                          required>
+               </div>
+
+               <div class="form-group">
+                   <label for="lesson_content">Содержание урока *</label>
+                   <textarea id="lesson_content" name="lesson_content"
+                             placeholder="Введите содержание урока"
+                             required><?php echo htmlspecialchars($lesson_content); ?></textarea>
+               </div>
+
+               <div class="form-group">
+                   <button type="submit" name="add_lesson">Добавить урок</button> <!-- Добавлено имя name -->
+               </div>
+           </form>
+       </main>
     </div>
 
-    <!-- 4. Логика открытия Sidebar -->
-    <script>
+    <!-- Скрипт для управления Sidebar -->
+      <script>
         const sidebar = document.getElementById("mySidebar");
         const openBtn = document.getElementById("openBtn");
         const closeBtn = document.getElementById("closeBtn");
@@ -335,6 +338,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         openBtn.addEventListener('click', openNav);
         closeBtn.addEventListener('click', closeNav);
     </script>
+<script>
+    const sidebar = document.getElementById("mySidebar");
+    const openBtn = document.getElementById("openBtn");
+    const closeBtn = document.getElementById("closeBtn");
+    const body = document.body;
 
+    function openNav() {
+        sidebar.classList.remove("closed");
+        body.classList.add("sidebar-open");
+    }
+
+    function closeNav() {
+        sidebar.classList.add("closed");
+        body.classList.remove("sidebar-open");
+    }
+
+    openBtn.addEventListener('click', openNav);
+    closeBtn.addEventListener('click', closeNav);
+
+    // Закрытие Sidebar при клике вне его области
+    document.addEventListener('click', function(event) {
+        if (!sidebar.contains(event.target) && !openBtn.contains(event.target)) {
+            closeNav();
+        }
+    });
+
+    // Закрытие Sidebar при нажатии Escape
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeNav();
+        }
+    });
+</script>
 </body>
 </html>
