@@ -2,133 +2,147 @@
 require_once '../includes/db_connect.php'; // Убедитесь, что путь к файлу правильный
 
 $lesson_title = "Выбор урока";
-if(isset($_GET['id_урока'])) {
-    $lesson_id = (int)$_GET['id_урока'];
-    $sql = "SELECT название, описание FROM Уроки WHERE id_урока = ?";
-    $stmt = sqlsrv_prepare($link, $sql, array($lesson_id));
+$test_link = null;
+$result_message = '';
 
-    if(sqlsrv_execute($stmt)) {
-        $lesson = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-        if($lesson) {
+if (isset($_GET['id_урока'])) {
+    $lesson_id = (int)$_GET['id_урока'];
+
+    // Получаем данные урока
+    $sql_lesson = "SELECT название, контент FROM Уроки WHERE id_урока = ?";
+    $stmt_lesson = sqlsrv_prepare($link, $sql_lesson, array($lesson_id));
+
+    if (sqlsrv_execute($stmt_lesson)) {
+        $lesson = sqlsrv_fetch_array($stmt_lesson, SQLSRV_FETCH_ASSOC);
+        if ($lesson) {
             $lesson_title = htmlspecialchars($lesson['название']);
         }
     }
-}
-$lesson_id = 1; 
 
+    // Получаем ссылку на тест для этого урока
+    $sql_test = "SELECT ссылка FROM TestUr WHERE id_урока = ?";
+    $stmt_test = sqlsrv_prepare($link, $sql_test, array($lesson_id));
+
+    if (sqlsrv_execute($stmt_test)) {
+        $test = sqlsrv_fetch_array($stmt_test, SQLSRV_FETCH_ASSOC);
+        if ($test) {
+            $test_link = $test['ссылка'];
+        }
+    }
+}
+
+// Обработка POST‑запроса для обновления статуса урока
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $sql = "UPDATE Уроки SET статус = 1 WHERE id_урока = ?";
-    $stmt = sqlsrv_prepare($link, $sql, array($lesson_id));
-    
-    if (sqlsrv_execute($stmt)) {
-        $result_message = "Статус урока успешно изменён!";
-    } else {
-        $result_message = "Ошибка: " . print_r(sqlsrv_errors(), true);
+    if (isset($_POST['id_урока'])) {
+        $lesson_id = (int)$_POST['id_урока'];
+
+        // Обновляем статус урока
+        $sql_update = "UPDATE Уроки SET статус = 1 WHERE id_урока = ?";
+        $stmt_update = sqlsrv_prepare($link, $sql_update, array($lesson_id));
+
+        if (sqlsrv_execute($stmt_update)) {
+            $result_message = "Статус урока успешно изменён!";
+
+            // Если есть тест, перенаправляем на него
+            if ($test_link) {
+                header("Location: " . htmlspecialchars($test_link));
+                exit;
+            }
+        } else {
+            $result_message = "Ошибка: " . print_r(sqlsrv_errors(), true);
+        }
     }
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title><?= htmlspecialchars($lesson_title) ?></title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
-
 <body class="container">
     <header>
         <div class="nav-bar">
             <span>Добро пожаловать, Ученик!</span>
-            <a href="http://localhost/15/your_project_folder/student/lesson_Html.php">Выход</a>
-        
+            <a href="logout.php">Выход</a>
         </div>
     </header>
-    <main><style>
-       
-        .btn-container {
-            text-align: center;
-        }
-        .status-btn {
-            padding: 20px 40px;
-            font-size: 18px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .status-btn:hover {
-            background-color: #45a049;
-        }
-        .message {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: <?= isset($result_message) && strpos($result_message, 'Ошибка') === false ? '#d4edda' : '#f8d7da' ?>;
-            color: <?= isset($result_message) && strpos($result_message, 'Ошибка') === false ? '#155724' : '#721c24' ?>;
-            border-radius: 4px;
-        }
-    </style>
+
+    <main>
+        <style>
+            .btn-container {
+                text-align: center;
+                margin: 20px 0;
+            }
+            .status-btn {
+                padding: 20px 40px;
+                font-size: 18px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+                text-decoration: none;
+                display: inline-block;
+            }
+            .status-btn:hover {
+                background-color: #45a049;
+            }
+            .message {
+                margin-top: 20px;
+                padding: 10px;
+                border-radius: 4px;
+                text-align: center;
+            }
+            .alert-success {
+                background-color: #d4edda;
+                color: #155724;
+            }
+            .alert-error {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
+            .lesson-content {
+                margin: 20px 0;
+                line-height: 1.6;
+            }
+        </style>
+
         <?php
-        if(isset($_GET['id_урока'])) {
-            $lesson_id = (int)$_GET['id_урока'];
-            
-            $sql = "SELECT название, контент FROM Уроки WHERE id_урока = ?";
-            $stmt = sqlsrv_prepare($link, $sql, array($lesson_id));
-            
-            if(sqlsrv_execute($stmt)) {
-                $lesson = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-                
-                if($lesson) {
-                    echo '<h1>' . htmlspecialchars($lesson['название']) . '</h1>';
-                    echo '<div class="lesson-content">';
-                    echo '<p>' . nl2br(htmlspecialchars($lesson['контент'])) . '</p>';
-                    echo '</div>';
+        if (isset($_GET['id_урока'])) {
+            if ($lesson) {
+                echo '<h1>' . htmlspecialchars($lesson['название']) . '</h1>';
+                echo '<div class="lesson-content">';
+                echo '<p>' . nl2br(htmlspecialchars($lesson['контент'])) . '</p>';
+                echo '</div>';
+
+                // Показываем кнопку завершения урока и перехода к тесту
+                if ($test_link) {
+                    echo '<div class="btn-container">';
+            echo '<form method="post">';
+            echo '<input type="hidden" name="id_урока" value="' . $lesson_id . '">';
+            echo '<button type="submit" class="status-btn">Завершить урок и перейти к тесту</button>';
+            echo '</form>';
+            echo '</div>';
                 } else {
-                    echo '<div class="alert alert-info">Урок не найден</div>';
+                    echo '<div class="alert alert-warning">Для этого урока тест не предусмотрен</div>';
                 }
             } else {
-                echo '<div class="alert alert-error">Ошибка при получении данных урока</div>';
+                echo '<div class="alert alert-info">Урок не найден</div>';
             }
         } else {
             echo '<div class="alert alert-warning">Выберите урок из списка</div>';
         }
-        ?>
-        <div class="btn-container">
-        <form method="post">
-            <button type="submit" class="status-btn">
-                завершить
-            </button>
-        </form>
-        
-        <?php if(isset($result_message)): ?>
-            <div class="message">
-                <?= htmlspecialchars($result_message) ?>
-            </div>
-        <?php endif; ?>
-    </main>
-    <script>
-    function completeLesson(lessonId) {
-        if(confirm('Вы уверены, что хотите завершить этот урок?')) {
-            fetch('complete_lesson.php?id_урока=' + lessonId)
-                .then(response => response.json())
-                .then(data => {
-                    if(data.success) {
-                        alert('Урок успешно завершен!');
-                        location.reload();
-                    } else {
-                        alert('Ошибка: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    alert('Ошибка сети: ' + error);
-                });
-        }
-    }
-    </script>
-      
-</body>
 
+        // Показываем сообщение о результате
+        if (!empty($result_message)) {
+            $alert_class = strpos($result_message, 'Ошибка') !== false ? 'alert-error' : 'alert-success';
+            echo '<div class="message ' . $alert_class . '">' . htmlspecialchars($result_message) . '</div>';
+        }
+        ?>
+    </main>
+</body>
 </html>

@@ -188,7 +188,7 @@ function getCourseProgress($link, $student_id, $course_id) {
             <div class="success-message"><?php echo htmlspecialchars($success_message); ?></div>
                 <?php endif; ?>
 
-                <ul class="courses-list">
+                <ol class="courses-list">
                     <?php foreach ($courses as $course): ?>
                         <li class="course-item">
                             <h2><?php echo htmlspecialchars($course['название']); ?></h2>
@@ -253,10 +253,10 @@ function getCourseProgress($link, $student_id, $course_id) {
                 // Определяем URL и текст кнопки в зависимости от типа урока
                 if ($lesson['is_video']) {
                     $url = "../student/VideoUrok.php?id_урока=" . $lesson['id_урока'];
-                    $buttonText = "Смотреть видеоурок";
+                    $buttonText = "🎞 Смотреть видеоурок";
                 } else {
                     $url = "../student/Uroki.php?id_урока=" . $lesson['id_урока'];
-                    $buttonText = "Начать урок";
+                    $buttonText = "📖 Начать урок";
                 }
 
                 echo '<a href="' . $url . '" class="btn">' . $buttonText . '</a>';
@@ -273,7 +273,7 @@ function getCourseProgress($link, $student_id, $course_id) {
             </button>
         </li>
     <?php endforeach; ?>
-</ul>
+</ol>
 </section>
 </div>
 </main>

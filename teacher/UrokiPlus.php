@@ -109,7 +109,7 @@ if (isset($_POST['delete_test']) && isset($_POST['test_id'])) {
 <head>
     
     <meta charset="UTF-8">
-    <title>Уроки - Ученик</title>
+    <title>Курсы и Уроки</title>
     <link rel="stylesheet" href="../css/style.css">
     <style>
         .course-item {
@@ -118,7 +118,19 @@ if (isset($_POST['delete_test']) && isset($_POST['test_id'])) {
             padding: 15px;
             margin-bottom: 15px;
             background: #f9f9f9;
+
+            
         }
+        .course-list::before {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-image: url('https://i.pinimg.com/736x/43/ed/a2/43eda2144796d0514817178b8496c0fc.jpg');
+    background-size: contain;
+    margin-right: 10px;
+    vertical-align: middle;
+}
         .progress-container {
             margin-top: 10px;
         }
@@ -199,7 +211,7 @@ if (isset($_POST['delete_test']) && isset($_POST['test_id'])) {
     <header>
         <div class="nav-bar">
             <button class="openbtn" id="openBtn">☰ Меню</button>
-            <span>Просмотр прогресса учеников</span>
+            <span>Курсы и Уроки</span>
               
          
         </div>
@@ -253,9 +265,10 @@ if (isset($_POST['delete_test']) && isset($_POST['test_id'])) {
             <div class="success-message"><?php echo htmlspecialchars($success_message); ?></div>
                 <?php endif; ?>
 
-             <ul class="courses-list">
+             <ol class="courses-list">
     <?php foreach ($courses as $course): ?>
         <li class="course-item">
+
             <h2><?php echo htmlspecialchars($course['название']); ?></h2>
             <p><?php echo htmlspecialchars($course['описание']); ?></p>
 
@@ -278,11 +291,11 @@ if (isset($_POST['delete_test']) && isset($_POST['test_id'])) {
             <div style="margin: 15px 0;">
                 <a href="../teacher/test_menuUrok.php?course_id=<?php echo $course['id_курса']; ?>"
                    class="btn add-lesson-btn">
-                    Добавить урок
+                   📚 Добавить урок
                 </a>
                 <a href="../teacher/test_vidioUrok.php?course_id=<?php echo $course['id_курса']; ?>"
                    class="btn add-lesson-btn">
-                    Добавить видеоурок
+                   🎥 Добавить видеоурок
                 </a>
             </div>
             
@@ -348,28 +361,28 @@ if (isset($_POST['delete_test']) && isset($_POST['test_id'])) {
                 // Определяем URL и текст кнопки в зависимости от типа урока
                 if ($lesson['is_video']) {
                     $url = "../student/VideoUrok.php?id_урока=" . $lesson['id_урока'];
-            $buttonText = "Смотреть видеоурок";
+            $buttonText = "🎞 Смотреть видеоурок";
         } else {
             $url = "../student/Uroki.php?id_урока=" . $lesson['id_урока'];
-            $buttonText = "Начать урок";
+            $buttonText = "📖 Начать урок";
         }
 
         // Блок с кнопками
         echo '<div class="lesson-actions">';
         // Кнопка для студентов
         echo '<a href="test_TestUrok.php?id_урока='. htmlspecialchars($lesson['id_урока']) .'"
-               class="btn btn-edit">Добавить тест к уроку</a>';
+               class="btn btn-edit"> 📝 Добавить тест к уроку</a>';
         echo '<a href="' . $url . '" class="btn btn-primary">' . $buttonText . '</a>';
         // Кнопка редактирования
         echo '<a href="Redakt_urok.php?id_урока=' . htmlspecialchars($lesson['id_урока']) . '"
-               class="btn btn-edit">Редактировать</a>';
+               class="btn btn-edit">🖊 Редактировать</a>';
         // Кнопка удаления с подтверждением
         echo '<form method="post" action=""
                onsubmit="return confirm(\'Вы уверены, что хотите удалить урок «' .
                htmlspecialchars(addslashes($lesson['название'])) . '»? Это действие нельзя отменить!\');"
                style="display: inline;">';
         echo '<input type="hidden" name="lesson_id" value="' . htmlspecialchars($lesson['id_урока']) . '">';
-        echo '<button type="submit" name="delete_lesson" class="btn btn-delete">Удалить</button>';
+        echo '<button type="submit" name="delete_lesson" class="btn btn-delete">🗑 Удалить</button>';
         echo '</form>';
         echo '</div>'; // Закрытие .lesson-actions
         echo '</li>';
@@ -389,7 +402,7 @@ if (isset($_POST['delete_test']) && isset($_POST['test_id'])) {
         }
         echo '<div class="test-actions">';
         echo '<a href="' . htmlspecialchars($test['ссылка']) . '" target="_blank"
-               class="btn btn-test">Пройти тест</a>';
+               class="btn btn-test">📖 Пройти тест</a>';
 
         // Форма с кнопкой удаления теста
         echo '<form method="post" action=""
@@ -397,7 +410,7 @@ if (isset($_POST['delete_test']) && isset($_POST['test_id'])) {
                htmlspecialchars(addslashes($test['название'])) . '»? Это действие нельзя отменить!\');"
                style="display: inline; margin-left: 10px;">';
         echo '<input type="hidden" name="test_id" value="' . htmlspecialchars($test['id_test']) . '">';
-        echo '<button type="submit" name="delete_test" class="btn btn-delete">Удалить тест</button>';
+        echo '<button type="submit" name="delete_test" class="btn btn-delete">🗑 Удалить</button>';
         echo '</form>';
 
         echo '</div>';
@@ -416,7 +429,7 @@ if (isset($_POST['delete_test']) && isset($_POST['test_id'])) {
             </button>
         </li>
     <?php endforeach; ?>
-</ul>
+</ol>
 </section>
 </div>
 </main>
