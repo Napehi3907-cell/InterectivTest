@@ -1,4 +1,14 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+$user_role = $_SESSION['role'];
+$user_name = $_SESSION['full_name'];
 require_once '../includes/db_connect.php'; // Убедитесь, что путь к файлу правильный
 
 $lesson_title = "Выбор урока";

@@ -1,7 +1,21 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+$user_role = $_SESSION['role'];
+$user_name = $_SESSION['full_name'];
+
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
+
 
 // Подключение к базе данных
 require_once '../includes/db_connect.php';
@@ -13,24 +27,37 @@ define('ROOT_PATH', realpath(__DIR__ . '/../') . '/');
 $error_message = '';
 $success_message = '';
 $courses = [];
-$student_id = $_SESSION['id_студента'] ?? 1; // ID студента из сессии
+$teacher_id = $user_id;
 
-// Получаем список всех курсов
-$sql_courses = "SELECT id_курса, название, описание FROM Курсы ORDER BY название";
-$stmt_courses = sqlsrv_query($link, $sql_courses);
+// Получаем список всех курсов для текущего преподавателя
+if ($teacher_id !== null) {
+    $sql_courses = "
+        SELECT c.id_курса, c.название, c.описание
+        FROM Курсы c
+        WHERE c.id_преподавателя = ?
+        ORDER BY c.название
+    ";
+    $params_courses = [$teacher_id];
+    $stmt_courses = sqlsrv_prepare($link, $sql_courses, $params_courses);
 
-if ($stmt_courses === false) {
-    log_sqlsrv_errors("Подготовка запроса списка курсов");
-    $error_message = "Ошибка сервера при получении списка курсов.";
-} else {
-    while ($row = sqlsrv_fetch_array($stmt_courses, SQLSRV_FETCH_ASSOC)) {
-        $courses[] = $row;
+    if ($stmt_courses === false) {
+        log_sqlsrv_errors("Подготовка запроса списка курсов преподавателя");
+        $error_message = "Ошибка сервера при получении списка курсов.";
+    } else {
+        if (sqlsrv_execute($stmt_courses)) {
+            while ($row = sqlsrv_fetch_array($stmt_courses, SQLSRV_FETCH_ASSOC)) {
+                $courses[] = $row;
+            }
+        } else {
+            log_sqlsrv_errors("Выполнение запроса списка курсов преподавателя");
+            $error_message = "Ошибка при выполнении запроса курсов.";
+        }
     }
 }
 
 
 // Функция для получения прогресса по курсу
-function getCourseProgress($link, $student_id, $course_id) {
+function getCourseProgress($link, $course_id) {
     $sql_progress = "
         SELECT
             c.id_курса,
@@ -43,12 +70,12 @@ function getCourseProgress($link, $student_id, $course_id) {
             END AS процент_выполнения
         FROM Курсы c
         LEFT JOIN Уроки l ON c.id_курса = l.id_курса
-        LEFT JOIN Прогресс_Курса p ON l.id_урока = p.id_урока AND p.id_студента = ?
+        LEFT JOIN Прогресс_Курса p ON l.id_урока = p.id_урока
         WHERE c.id_курса = ?
         GROUP BY c.id_курса, c.название
     ";
 
-    $params = [$student_id, $course_id];
+    $params = [$course_id];
     $stmt_progress = sqlsrv_prepare($link, $sql_progress, $params);
     $progress_data = null;
 
@@ -62,6 +89,7 @@ function getCourseProgress($link, $student_id, $course_id) {
         'процент_выполнения' => 0
     ];
 }
+
 // Обработка удаления урока
 if (isset($_POST['delete_lesson']) && isset($_POST['lesson_id'])) {
     $lesson_id = trim($_POST['lesson_id']);
@@ -222,7 +250,7 @@ if (isset($_POST['delete_test']) && isset($_POST['test_id'])) {
     <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
     
     <!-- Пункты меню -->
-     <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.html">Главная</a>
+     <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.php">Главная</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php">прогресс</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>
@@ -275,7 +303,7 @@ if (isset($_POST['delete_test']) && isset($_POST['test_id'])) {
             <!-- Прогресс‑бар для текущего курса -->
             <div class="progress-container">
                 <?php
-                $progress = getCourseProgress($link, $student_id, $course['id_курса']);
+                $progress = getCourseProgress($link,  $course['id_курса']);
                 ?>
                 <div class="progress-bar-container">
                     <div class="progress-bar" style="width: <?php echo $progress['процент_выполнения']; ?>%"></div>
@@ -423,7 +451,7 @@ if (isset($_POST['delete_test']) && isset($_POST['test_id'])) {
         ?>
             </ul>
 
-            <button type="button" class="toggle-lessons-btn"
+            <button type="button" class="btn"
                     onclick="toggleLessons(<?php echo $course['id_курса']; ?>)">
                 Показать/скрыть уроки
             </button>

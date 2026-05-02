@@ -87,7 +87,7 @@ while ($row = sqlsrv_fetch_array($stmt_courses, SQLSRV_FETCH_ASSOC)) {
     <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
     
     <!-- Пункты меню -->
-     <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.html">Главная</a>
+     <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.php">Главная</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php">прогресс</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>
@@ -135,7 +135,7 @@ while ($row = sqlsrv_fetch_array($stmt_courses, SQLSRV_FETCH_ASSOC)) {
                 </select>
            </div>
         
-           <button type="button"  width: 100%;>Сгенерировать отчёт</button>
+           <button type="submit"  width: 100%;>Сгенерировать отчёт</button>
        </form>
     </main>
 

@@ -1,6 +1,15 @@
 <?php
 session_start();
 
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+$user_role = $_SESSION['role'];
+$user_name = $_SESSION['full_name'];
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -30,8 +39,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_bt'])) {
     if (empty($course_name) || empty($course_description)) {
         $_SESSION['error_message'] = "Пожалуйста, заполните все поля.";
     } else {
-        $sql_create_course = "INSERT INTO Курсы (название, описание) VALUES (?, ?)";
-        $params_create_course = [$course_name, $course_description];
+        // Получаем ID преподавателя из сессии (предполагается, что он сохранён при авторизации)
+        $teacher_id = $user_id;
+
+        $sql_create_course = "INSERT INTO Курсы (название, описание, id_преподавателя) VALUES (?, ?, ?)";
+        $params_create_course = [$course_name, $course_description, $teacher_id];
 
         $stmt_create_course = sqlsrv_prepare($link, $sql_create_course, $params_create_course);
         if ($stmt_create_course === false) {
@@ -70,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_bt'])) {
 
     <div id="mySidebar" class="sidebar closed">
         <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
-        <a href="../teacher/asset_srt.html">Главная</a>
+        <a href="../teacher/asset_srt.php">Главная</a>
         <a href="../teacher/UrokiPlus.php">Уроки</a>
         <a href="../teacher/ProgressSt.php">Прогресс</a>
         <a href="../teacher/report_settings.php">Отчёты</a>

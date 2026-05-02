@@ -1,4 +1,15 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+$user_role = $_SESSION['role'];
+$user_name = $_SESSION['full_name'];
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -13,7 +24,7 @@ define('ROOT_PATH', realpath(__DIR__ . '/../') . '/');
 $error_message = '';
 $success_message = '';
 $courses = [];
-$student_id = $_SESSION['id_студента'] ?? 1; // ID студента из сессии
+$student_id = $user_id;
 
 // Получаем список всех курсов
 $sql_courses = "SELECT id_курса, название, описание FROM Курсы ORDER BY название";
@@ -156,7 +167,15 @@ function getCourseProgress($link, $student_id, $course_id) {
 <body class="container">
     <header>
         <div class="nav-bar">
-            <span>Добро пожаловать, Ученик!</span>
+            <span>Добро пожаловать <?php
+    if (isset($_SESSION['full_name']) && !empty($_SESSION['full_name'])) {
+        echo htmlspecialchars($_SESSION['full_name']);
+    } elseif (isset($_SESSION['login']) && !empty($_SESSION['login'])) {
+        echo htmlspecialchars($_SESSION['login']);
+    } else {
+        echo 'Пользователь';
+    }
+    ?></span>
             <a href="../student/Name.php">Изменить имя</a>
             <a href="../Login.php">Выход</a>
         </div>
@@ -267,7 +286,7 @@ function getCourseProgress($link, $student_id, $course_id) {
         }
         ?>
             </ul>
-            <button type="button" class="toggle-lessons-btn"
+            <button type="button" class="btn"
                     onclick="toggleLessons(<?php echo $course['id_курса']; ?>)">
                 Показать/скрыть уроки
             </button>

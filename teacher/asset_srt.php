@@ -1,29 +1,52 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+$user_role = $_SESSION['role'];
+$user_name = $_SESSION['full_name'];
+
+
+
+?>
 <!DOCTYPE html>
 <html lang="ru">
 
 <head>
 
     <meta charset="UTF-8">
-    <title>Редактирование ФИО пользователя</title>
+    <title>Главное меню</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
 
 
 <head>
     <meta charset="UTF-8">
-    <title>Редактирование ФИО пользователя</title>
+    <title>Главное меню</title>
      <header>
         <div class="nav-bar">
             <!-- Кнопка для открытия Sidebar -->
             <button class="openbtn" id="openBtn">☰ Меню</button>
-            <span>Создание видио урока</span>
+            <span>Добро пожаловать, <?php
+    if (isset($_SESSION['full_name']) && !empty($_SESSION['full_name'])) {
+        echo htmlspecialchars($_SESSION['full_name']);
+    } elseif (isset($_SESSION['login']) && !empty($_SESSION['login'])) {
+        echo htmlspecialchars($_SESSION['login']);
+    } else {
+        echo 'Пользователь';
+    }
+    ?>! </span>
         </div>
     </header>
         <div id="mySidebar" class="sidebar closed">
         <!-- Кнопка закрытия (крестик) -->
         <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
         
-        <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.html">Главная</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.php">Главная</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php">прогресс</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>

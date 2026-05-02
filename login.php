@@ -64,6 +64,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error_message = "Ошибка сервера при проверке пользователя.";
             }
         }
+        
+if ($role === 'преподаватель') {
+    // Получаем id_преподавателя и сохраняем в сессию
+    $sql_get_teacher = "SELECT id_преподавателя FROM Преподаватели WHERE id_пользователя = ?";
+    $params_get = [$user_id];
+    $stmt_get = sqlsrv_prepare($link, $sql_get_teacher, $params_get);
+    if ($stmt_get && sqlsrv_execute($stmt_get)) {
+        $row = sqlsrv_fetch_array($stmt_get, SQLSRV_FETCH_ASSOC);
+        if ($row) {
+            $_SESSION['id_преподавателя'] = $row['id_преподавателя'];
+        }
+    }
+}
+
+
 
         // Если пользователь найден
         if ($user) {
@@ -75,10 +90,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Перенаправляем в зависимости от роли
             if ($role === 'препод') {
-                header("Location: http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.html");
+                header("Location: http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.php");
                 exit;
             } elseif ($role === 'ученик') {
-                header("Location: http://localhost/переделанная/15/your_project_folder/student/lesson_Html2.php");
+                header("Location: http://localhost/переделанная/15/your_project_folder/student/lessen_html2.php");
                 exit;
             }
         }
