@@ -45,26 +45,40 @@ function getCourseProgress($link, $student_id, $course_id) {
         SELECT
             c.id_курса,
             c.название,
-            COUNT(DISTINCT l.id_урока) AS общее_количество_уроков,
+            (SELECT COUNT(*) FROM Уроки WHERE id_курса = c.id_курса) AS общее_количество_уроков,
             COUNT(DISTINCT p.id_урока) AS пройденных_уроков,
             CASE
-                WHEN COUNT(DISTINCT l.id_урока) = 0 THEN 0
-                ELSE ROUND(COUNT(DISTINCT p.id_урока) * 100 / COUNT(DISTINCT l.id_урока), 2)
+                WHEN (SELECT COUNT(*) FROM Уроки WHERE id_курса = c.id_курса) = 0 THEN 0
+                ELSE ROUND(COUNT(DISTINCT p.id_урока) * 100 / (SELECT COUNT(*) FROM Уроки WHERE id_курса = c.id_курса), 2)
             END AS процент_выполнения
         FROM Курсы c
-        LEFT JOIN Уроки l ON c.id_курса = l.id_курса
-        LEFT JOIN Прогресс_Курса p ON l.id_урока = p.id_урока AND p.id_студента = ?
+        LEFT JOIN Прогресс_Курса p ON c.id_курса = p.id_курса AND p.id_студента = ?
         WHERE c.id_курса = ?
         GROUP BY c.id_курса, c.название
     ";
 
     $params = [$student_id, $course_id];
     $stmt_progress = sqlsrv_prepare($link, $sql_progress, $params);
-    $progress_data = null;
 
-    if (sqlsrv_execute($stmt_progress)) {
-        $progress_data = sqlsrv_fetch_array($stmt_progress, SQLSRV_FETCH_ASSOC);
+    if ($stmt_progress === false) {
+        log_sqlsrv_errors("Подготовка запроса прогресса курса");
+        return [
+            'общее_количество_уроков' => 0,
+            'пройденных_уроков' => 0,
+            'процент_выполнения' => 0
+        ];
     }
+
+    if (!sqlsrv_execute($stmt_progress)) {
+        log_sqlsrv_errors("Выполнение запроса прогресса курса");
+        return [
+            'общее_количество_уроков' => 0,
+            'пройденных_уроков' => 0,
+            'процент_выполнения' => 0
+        ];
+    }
+
+    $progress_data = sqlsrv_fetch_array($stmt_progress, SQLSRV_FETCH_ASSOC);
 
     return $progress_data ?: [
         'общее_количество_уроков' => 0,

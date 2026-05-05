@@ -31,6 +31,7 @@ $user_name = $_SESSION['full_name'];
         <div class="nav-bar">
             <!-- Кнопка для открытия Sidebar -->
             <button class="openbtn" id="openBtn">☰ Меню</button>
+            <a href="../teacher/Profil_teacher.php">Профиль</a>
             <span>Добро пожаловать, <?php
     if (isset($_SESSION['full_name']) && !empty($_SESSION['full_name'])) {
         echo htmlspecialchars($_SESSION['full_name']);
