@@ -1,3 +1,81 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+$user_role = $_SESSION['role'];
+$user_name = $_SESSION['full_name'];
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+require_once '../includes/db_connect.php';
+
+// Получение ID обучающегося из GET-параметра или POST
+$student_id = $user_id;
+
+// Функция для безопасной обработки входных данных
+function sanitizeInput($input) {
+    if ($input === null) {
+        return '';
+    }
+    return trim(htmlspecialchars($input, ENT_QUOTES, 'UTF-8'));
+}
+
+// Обработка изменений
+$success_message = '';
+$error_message = '';
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && $student_id > 0) {
+    // Безопасное получение и обработка данных
+    $new_fio = sanitizeInput(filter_input(INPUT_POST, 'фио'));
+    $new_login = sanitizeInput(filter_input(INPUT_POST, 'логин'));
+    $new_password = sanitizeInput(filter_input(INPUT_POST, 'пароль'));
+
+    if (!empty($new_fio) && !empty($new_login)) {
+        try {
+            // Если пароль не пустой, обновляем его (иначе оставляем старый)
+            if (!empty($new_password)) {
+                $sql = "UPDATE Обучающиеся SET фио=?, логин=?, пароль=? WHERE id_студента=?";
+                $params = [$new_fio, $new_login, $new_password, $student_id];
+            } else {
+                $sql = "UPDATE Обучающиеся SET фио=?, логин=? WHERE id_студента=?";
+                $params = [$new_fio, $new_login, $student_id];
+            }
+
+            $result = sqlsrv_query($link, $sql, $params);
+
+            if ($result === false) {
+                throw new Exception(print_r(sqlsrv_errors(), true));
+            }
+
+            $success_message = 'Данные обучающегося успешно обновлены.';
+        } catch (Exception $e) {
+            $error_message = 'Ошибка при изменении данных: ' . $e->getMessage();
+        }
+    } else {
+        $error_message = 'Заполните обязательные поля (ФИО и логин).';
+    }
+}
+
+// Получаем текущие данные обучающегося
+$current_data = null;
+if ($student_id > 0) {
+    $sql = "SELECT * FROM Обучающиеся WHERE id_студента = ?";
+    $params = [$student_id];
+    $stmt = sqlsrv_query($link, $sql, $params);
+
+    if ($stmt !== false) {
+        $current_data = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="ru">
 
@@ -123,6 +201,22 @@
             transition: 0.3s;
             transform: scale(0.93);
         }
+        .no-underline {
+text-decoration: none;
+}
+.error-message {
+color: red;
+text-align: center;
+margin-top: 10px;
+}
+
+.success-message {
+color: green;
+text-align: center;
+margin-top: 10px;
+}
+
+
     </style>
 </head>
 
@@ -130,50 +224,81 @@
     <div>
         <main>
 
+<h1>Редактирование данных обучающегося</h1>
+ <?php if ($success_message): ?>
+                <div class="success-message"><?php echo $success_message; ?></div>
+            <?php endif; ?>
 
-            <?php
-            require_once '../includes/db_connect.php';
-
-            // Обработка изменений
-            if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
-                $newFIO = trim(filter_input(INPUT_POST, 'new_fio', FILTER_SANITIZE_STRING));
-
-                if ($id && $newFIO) {
-                    try {
-                        $sql = "UPDATE PL SET ФИО=? WHERE id_поль=?";
-                        $params = [$newFIO, $id];
-                        $result = sqlsrv_query($link, $sql, $params);
-
-                        if ($result === false) {
-                            throw new Exception(print_r(sqlsrv_errors(), true));
-                        }
-
-                        echo '<div class="success-message">ФИО успешно обновлено.</div>';
-                    } catch (Exception $e) {
-                        echo '<div class="error-message">Ошибка при изменении ФИО: ' . $e->getMessage() . '</div>';
-                    }
-                } else {
-                    echo '<div class="error-message">Проверьте введённые данные.</div>';
-                }
-            }
-            ?>
+            <?php if ($error_message): ?>
+                <div class="error-message"><?php echo $error_message; ?></div>
+            <?php endif; ?>
 
 
-            <h1>Редактирование ФИО пользователя</h1>
-            <form method="post" action="">
-                <div class="form-group">
-                    <label for="id">ID пользователя:</label>
-                    <input type="text" id="id" name="id" placeholder="Введите ID пользователя" required>
+
+
+<?php if ($student_id <= 0): ?>
+    <div class="error-message">Не указан ID обучающегося.</div>
+<?php elseif ($current_data === null): ?>
+    <div class="error-message">Обучающийся с ID <?php echo $student_id; ?> не найден.</div>
+<?php else: ?>
+    <form method="post" action="">
+        <input type="hidden" name="id_студента" value="<?php echo $current_data['id_студента']; ?>">
+
+        <div class="form-group">
+            <label for="fio">ФИО:</label>
+            <input type="text" id="fio" name="фио" value="<?php echo htmlspecialchars($current_data['фио']); ?>" required>
+        </div>
+
+        <div class="form-group">
+            <label for="login">Логин:</label>
+            <input type="text" id="login" name="логин" value="<?php echo htmlspecialchars($current_data['логин']); ?>" required>
+        </div>
+
+        <div class="form-group">
+                    <label for="password">Новый пароль (оставьте пустым, если не меняете):</label>
+                    <div class="password-input-wrapper">
+                        <input type="password"
+                       id="password"
+                       name="password"
+                       autocomplete="new-password">
+                        <button type="button"
+                        class="password-toggle-btn"
+                        onclick="togglePasswordVisibility()">
+                            👁️
+                        </button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="new_fio">Новое ФИО:</label>
-                    <input type="text" id="new_fio" name="new_fio" placeholder="Введите новое ФИО" required>
-                </div>
-                <button type="submit" class="Regis-btn">Изменить ФИО</button>
-            </form>
+        <button type="submit" class="btn">Сохранить изменения</button>
+    </form>
+    <div style="margin-top: 20px; text-align: center;">
+        <a href="lessen_html2.php"  >
+<button type="submit" class="btn"> Отмена</button>
+</a>
+    </div>
+
+<?php endif; ?>
+
+
+
         </main>
     </div>
+     <script>
+        // Функция для переключения видимости пароля
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+        }
+
+        // Обработка открытия/закрытия сайдбара
+        document.getElementById('openBtn').addEventListener('click', function() {
+            document.getElementById('mySidebar').classList.remove('closed');
+        });
+
+        document.getElementById('closeBtn').addEventListener('click', function() {
+            document.getElementById('mySidebar').classList.add('closed');
+        });
+    </script>
 </body>
 
 </html>

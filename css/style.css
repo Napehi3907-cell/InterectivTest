@@ -647,4 +647,54 @@ h4 {
     display: inline-block;
     width: 100%;
 }
+.search-container {
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+}
+
+#courseSearch {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+#searchBtn {
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#searchBtn:hover {
+    background: #0056b3;
+}
+
+.search-results {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.search-result-item {
+    padding: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.search-result-item:hover {
+    background: #f8f9fa;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
 

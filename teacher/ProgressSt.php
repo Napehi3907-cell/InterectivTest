@@ -130,10 +130,11 @@ if ($selected_course_id) {
 <body class="container">
 
     <header>
-        <div class="nav-bar">
+        <div class="nav-bar"> 
+            <button class="openbtn" id="openBtn">☰ Меню</button>
             <span>Просмотр прогресса учеников</span>
-              <button class="openbtn" id="openBtn">☰ Меню</button>
-            <a href="../Login.php">Выход</a>
+             
+            
         </div>
     </header>
 
@@ -142,7 +143,7 @@ if ($selected_course_id) {
     <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
     
     <!-- Пункты меню -->
-   <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.html">Главная</a>
+   <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.php">Главная</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php">прогресс</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>
@@ -151,7 +152,7 @@ if ($selected_course_id) {
     
     <!-- Кнопка выхода -->
     <button class="Regis-btn">
-        <a href="http://localhost/переделанная/15/your_project_folder/teacher/login.php" class="no-underline">Выход</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/login.php" class="no-underline">Выход</a>
     </button>
 </div>
     <main>

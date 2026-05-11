@@ -1,7 +1,21 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+$user_role = $_SESSION['role'];
+$user_name = $_SESSION['full_name'];
+
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
+
 
 // Подключение к базе данных
 require_once '../includes/db_connect.php';
@@ -13,24 +27,37 @@ define('ROOT_PATH', realpath(__DIR__ . '/../') . '/');
 $error_message = '';
 $success_message = '';
 $courses = [];
-$student_id = $_SESSION['id_студента'] ?? 1; // ID студента из сессии
+$teacher_id = $user_id;
 
-// Получаем список всех курсов
-$sql_courses = "SELECT id_курса, название, описание FROM Курсы ORDER BY название";
-$stmt_courses = sqlsrv_query($link, $sql_courses);
+// Получаем список всех курсов для текущего преподавателя
+if ($teacher_id !== null) {
+    $sql_courses = "
+        SELECT c.id_курса, c.название, c.описание
+        FROM Курсы c
+        WHERE c.id_преподавателя = ?
+        ORDER BY c.название
+    ";
+    $params_courses = [$teacher_id];
+    $stmt_courses = sqlsrv_prepare($link, $sql_courses, $params_courses);
 
-if ($stmt_courses === false) {
-    log_sqlsrv_errors("Подготовка запроса списка курсов");
-    $error_message = "Ошибка сервера при получении списка курсов.";
-} else {
-    while ($row = sqlsrv_fetch_array($stmt_courses, SQLSRV_FETCH_ASSOC)) {
-        $courses[] = $row;
+    if ($stmt_courses === false) {
+        log_sqlsrv_errors("Подготовка запроса списка курсов преподавателя");
+        $error_message = "Ошибка сервера при получении списка курсов.";
+    } else {
+        if (sqlsrv_execute($stmt_courses)) {
+            while ($row = sqlsrv_fetch_array($stmt_courses, SQLSRV_FETCH_ASSOC)) {
+                $courses[] = $row;
+            }
+        } else {
+            log_sqlsrv_errors("Выполнение запроса списка курсов преподавателя");
+            $error_message = "Ошибка при выполнении запроса курсов.";
+        }
     }
 }
 
 
 // Функция для получения прогресса по курсу
-function getCourseProgress($link, $student_id, $course_id) {
+function getCourseProgress($link, $course_id) {
     $sql_progress = "
         SELECT
             c.id_курса,
@@ -43,12 +70,12 @@ function getCourseProgress($link, $student_id, $course_id) {
             END AS процент_выполнения
         FROM Курсы c
         LEFT JOIN Уроки l ON c.id_курса = l.id_курса
-        LEFT JOIN Прогресс_Курса p ON l.id_урока = p.id_урока AND p.id_студента = ?
+        LEFT JOIN Прогресс_Курса p ON l.id_урока = p.id_урока
         WHERE c.id_курса = ?
         GROUP BY c.id_курса, c.название
     ";
 
-    $params = [$student_id, $course_id];
+    $params = [$course_id];
     $stmt_progress = sqlsrv_prepare($link, $sql_progress, $params);
     $progress_data = null;
 
@@ -62,6 +89,7 @@ function getCourseProgress($link, $student_id, $course_id) {
         'процент_выполнения' => 0
     ];
 }
+
 // Обработка удаления урока
 if (isset($_POST['delete_lesson']) && isset($_POST['lesson_id'])) {
     $lesson_id = trim($_POST['lesson_id']);
@@ -83,14 +111,33 @@ if (isset($_POST['delete_lesson']) && isset($_POST['lesson_id'])) {
         }
     }
 }
+if (isset($_POST['delete_test']) && isset($_POST['test_id'])) {
+    $test_id = trim($_POST['test_id']);
 
+    // SQL‑запрос для удаления теста
+    $sql_delete_test = "DELETE FROM TestUr WHERE id_test = ?";
+    $params_delete_test = [$test_id];
+
+    $stmt_delete_test = sqlsrv_prepare($link, $sql_delete_test, $params_delete_test);
+    if ($stmt_delete_test === false) {
+        log_sqlsrv_errors("Подготовка запроса удаления теста");
+        $error_message = "Ошибка сервера при удалении теста.";
+    } else {
+        if (sqlsrv_execute($stmt_delete_test)) {
+            $success_message = "Тест удалён успешно!";
+        } else {
+            log_sqlsrv_errors("Выполнение запроса удаления теста");
+            $error_message = "Ошибка сервера при удалении теста.";
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     
     <meta charset="UTF-8">
-    <title>Уроки - Ученик</title>
+    <title>Курсы и Уроки</title>
     <link rel="stylesheet" href="../css/style.css">
     <style>
         .course-item {
@@ -99,7 +146,19 @@ if (isset($_POST['delete_lesson']) && isset($_POST['lesson_id'])) {
             padding: 15px;
             margin-bottom: 15px;
             background: #f9f9f9;
+
+            
         }
+        .course-list::before {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-image: url('https://i.pinimg.com/736x/43/ed/a2/43eda2144796d0514817178b8496c0fc.jpg');
+    background-size: contain;
+    margin-right: 10px;
+    vertical-align: middle;
+}
         .progress-container {
             margin-top: 10px;
         }
@@ -123,15 +182,66 @@ if (isset($_POST['delete_lesson']) && isset($_POST['lesson_id'])) {
             font-size: 0.9em;
             color: #666;
         }
+        .search-container {
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+}
+
+#courseSearch {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+#searchBtn {
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#searchBtn:hover {
+    background: #0056b3;
+}
+
+.search-results {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.search-result-item {
+    padding: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.search-result-item:hover {
+    background: #f8f9fa;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
     </style>
 </head>
 
 <body class="container">
     <header>
         <div class="nav-bar">
-            <span>Просмотр прогресса учеников</span>
-              <button class="openbtn" id="openBtn">☰ Меню</button>
-            <a href="../Login.php">Выход</a>
+            <button class="openbtn" id="openBtn">☰ Меню</button>
+            <span>Курсы и Уроки</span>
+              
+         
         </div>
     </header>
 
@@ -140,7 +250,7 @@ if (isset($_POST['delete_lesson']) && isset($_POST['lesson_id'])) {
     <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
     
     <!-- Пункты меню -->
-     <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.html">Главная</a>
+     <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.php">Главная</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php">прогресс</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>
@@ -149,7 +259,7 @@ if (isset($_POST['delete_lesson']) && isset($_POST['lesson_id'])) {
     
     <!-- Кнопка выхода -->
     <button class="Regis-btn">
-        <a href="http://localhost/переделанная/15/your_project_folder/teacher/login.php" class="no-underline">Выход</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/login.php" class="no-underline">Выход</a>
     </button>
 </div>
     <main>
@@ -161,6 +271,21 @@ if (isset($_POST['delete_lesson']) && isset($_POST['lesson_id'])) {
             <section>
                 <h1>Список курсов и уроков</h1>
 
+                <div class="search-container">
+    <input type="text" id="courseSearch" placeholder="Введите название курса для поиска..." aria-label="Поиск курсов">
+    <button type="button" id="searchBtn">Найти</button>
+</div>
+
+<div id="searchResults" class="search-results" style="display: none;">
+    <h3>Результаты поиска:</h3>
+    <ul id="searchResultsList"></ul>
+</div>
+
+
+
+
+
+
                 <?php if (!empty($error_message)): ?>
                     <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
                 <?php endif; ?>
@@ -168,16 +293,17 @@ if (isset($_POST['delete_lesson']) && isset($_POST['lesson_id'])) {
             <div class="success-message"><?php echo htmlspecialchars($success_message); ?></div>
                 <?php endif; ?>
 
-             <ul class="courses-list">
+             <ol class="courses-list">
     <?php foreach ($courses as $course): ?>
         <li class="course-item">
+
             <h2><?php echo htmlspecialchars($course['название']); ?></h2>
             <p><?php echo htmlspecialchars($course['описание']); ?></p>
 
             <!-- Прогресс‑бар для текущего курса -->
             <div class="progress-container">
                 <?php
-                $progress = getCourseProgress($link, $student_id, $course['id_курса']);
+                $progress = getCourseProgress($link,  $course['id_курса']);
                 ?>
                 <div class="progress-bar-container">
                     <div class="progress-bar" style="width: <?php echo $progress['процент_выполнения']; ?>%"></div>
@@ -193,9 +319,14 @@ if (isset($_POST['delete_lesson']) && isset($_POST['lesson_id'])) {
             <div style="margin: 15px 0;">
                 <a href="../teacher/test_menuUrok.php?course_id=<?php echo $course['id_курса']; ?>"
                    class="btn add-lesson-btn">
-                    Добавить урок
+                   📚 Добавить урок
+                </a>
+                <a href="../teacher/test_vidioUrok.php?course_id=<?php echo $course['id_курса']; ?>"
+                   class="btn add-lesson-btn">
+                   🎥 Добавить видеоурок
                 </a>
             </div>
+            
 
             <!-- Список уроков внутри курса -->
             <ul class="lessons-list" id="lessons-<?php echo $course['id_курса']; ?>" style="display: none;">
@@ -258,26 +389,28 @@ if (isset($_POST['delete_lesson']) && isset($_POST['lesson_id'])) {
                 // Определяем URL и текст кнопки в зависимости от типа урока
                 if ($lesson['is_video']) {
                     $url = "../student/VideoUrok.php?id_урока=" . $lesson['id_урока'];
-            $buttonText = "Смотреть видеоурок";
+            $buttonText = "🎞 Смотреть видеоурок";
         } else {
             $url = "../student/Uroki.php?id_урока=" . $lesson['id_урока'];
-            $buttonText = "Начать урок";
+            $buttonText = "📖 Начать урок";
         }
 
         // Блок с кнопками
         echo '<div class="lesson-actions">';
         // Кнопка для студентов
+        echo '<a href="test_TestUrok.php?id_урока='. htmlspecialchars($lesson['id_урока']) .'"
+               class="btn btn-edit"> 📝 Добавить тест к уроку</a>';
         echo '<a href="' . $url . '" class="btn btn-primary">' . $buttonText . '</a>';
         // Кнопка редактирования
         echo '<a href="Redakt_urok.php?id_урока=' . htmlspecialchars($lesson['id_урока']) . '"
-               class="btn btn-edit">Редактировать</a>';
+               class="btn btn-edit">🖊 Редактировать</a>';
         // Кнопка удаления с подтверждением
         echo '<form method="post" action=""
                onsubmit="return confirm(\'Вы уверены, что хотите удалить урок «' .
                htmlspecialchars(addslashes($lesson['название'])) . '»? Это действие нельзя отменить!\');"
                style="display: inline;">';
         echo '<input type="hidden" name="lesson_id" value="' . htmlspecialchars($lesson['id_урока']) . '">';
-        echo '<button type="submit" name="delete_lesson" class="btn btn-delete">Удалить</button>';
+        echo '<button type="submit" name="delete_lesson" class="btn btn-delete">🗑 Удалить</button>';
         echo '</form>';
         echo '</div>'; // Закрытие .lesson-actions
         echo '</li>';
@@ -287,34 +420,44 @@ if (isset($_POST['delete_lesson']) && isset($_POST['lesson_id'])) {
         }
 
                 // Выводим тесты, привязанные к урокам этого курса
-                if (!empty($tests)) {
-            echo '<li class="tests-section"><h3>Тесты к курсу:</h3><ul class="tests-list">';
-            foreach ($tests as $test) {
-                echo '<li class="test-item">';
-                echo '<h4 class="test-title">' . htmlspecialchars($test['название']) . '</h4>';
-                if (!empty($test['описание'])) {
-                    echo '<p class="test-description">' . htmlspecialchars($test['описание']) . '</p>';
-                }
-                echo '<div class="test-actions">';
-               echo '<a href="' . htmlspecialchars($test['ссылка']) . '" target="_blank"
-                       class="btn btn-test">Пройти тест</a>';
-                echo '</div>';
-                echo '</li>';
-            }
-            echo '</ul></li>';
-        } else {
-            echo '<li class="no-tests">К этому курсу пока не прикреплены тесты</li>';
+               if (!empty($tests)) {
+    echo '<li class="tests-section"><h3>Тесты к курсу:</h3><ul class="tests-list">';
+    foreach ($tests as $test) {
+        echo '<li class="test-item">';
+        echo '<h4 class="test-title">' . htmlspecialchars($test['название']) . '</h4>';
+        if (!empty($test['описание'])) {
+            echo '<p class="test-description">' . htmlspecialchars($test['описание']) . '</p>';
         }
+        echo '<div class="test-actions">';
+        echo '<a href="' . htmlspecialchars($test['ссылка']) . '" target="_blank"
+               class="btn btn-test">📖 Пройти тест</a>';
+
+        // Форма с кнопкой удаления теста
+        echo '<form method="post" action=""
+               onsubmit="return confirm(\'Вы уверены, что хотите удалить тест «' .
+               htmlspecialchars(addslashes($test['название'])) . '»? Это действие нельзя отменить!\');"
+               style="display: inline; margin-left: 10px;">';
+        echo '<input type="hidden" name="test_id" value="' . htmlspecialchars($test['id_test']) . '">';
+        echo '<button type="submit" name="delete_test" class="btn btn-delete">🗑 Удалить</button>';
+        echo '</form>';
+
+        echo '</div>';
+        echo '</li>';
+    }
+    echo '</ul></li>';
+} else {
+    echo '<li class="no-tests">К этому курсу пока не прикреплены тесты</li>';
+}
         ?>
             </ul>
 
-            <button type="button" class="toggle-lessons-btn"
+            <button type="button" class="btn"
                     onclick="toggleLessons(<?php echo $course['id_курса']; ?>)">
                 Показать/скрыть уроки
             </button>
         </li>
     <?php endforeach; ?>
-</ul>
+</ol>
 </section>
 </div>
 </main>
@@ -366,6 +509,98 @@ function toggleLessons(courseId) {
             closeNav();
         }
     });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const courseSearch = document.getElementById('courseSearch');
+    const searchBtn = document.getElementById('searchBtn');
+    const searchResults = document.getElementById('searchResults');
+    const searchResultsList = document.getElementById('searchResultsList');
+
+    // Получаем все курсы из DOM
+    const courseItems = document.querySelectorAll('.course-item');
+    const courseTitles = [];
+
+    courseItems.forEach(item => {
+        const titleElement = item.querySelector('h2');
+        if (titleElement) {
+            courseTitles.push({
+                title: titleElement.textContent,
+                element: item
+            });
+        }
+    });
+
+    // Функция поиска курсов
+    function searchCourses(query) {
+        searchResultsList.innerHTML = '';
+
+        if (!query.trim()) {
+            searchResults.style.display = 'none';
+            return;
+        }
+
+        const results = courseTitles.filter(course =>
+            course.title.toLowerCase().includes(query.toLowerCase())
+        );
+
+        if (results.length > 0) {
+            results.forEach(result => {
+                const li = document.createElement('li');
+                li.className = 'search-result-item';
+                li.textContent = result.title;
+                li.addEventListener('click', () => {
+                    scrollToCourse(result.element);
+                    searchResults.style.display = 'none';
+                    courseSearch.value = '';
+                });
+                searchResultsList.appendChild(li);
+            });
+            searchResults.style.display = 'block';
+        } else {
+            searchResultsList.innerHTML = '<li>Курсы не найдены</li>';
+            searchResults.style.display = 'block';
+        }
+    }
+
+    // Функция прокрутки к курсу
+    function scrollToCourse(courseElement) {
+        courseElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+
+        // Визуальный эффект выделения
+        courseElement.style.background = '#e8f4fd';
+        setTimeout(() => {
+            courseElement.style.transition = 'background 0.5s';
+            courseElement.style.background = '#f9f9f9';
+        }, 1500);
+    }
+
+    // Обработчики событий
+    searchBtn.addEventListener('click', () => {
+        searchCourses(courseSearch.value);
+    });
+
+    courseSearch.addEventListener('input', () => {
+        searchCourses(courseSearch.value);
+    });
+
+    // Закрытие результатов при клике вне области
+    document.addEventListener('click', (e) => {
+        if (!searchResults.contains(e.target) && e.target !== courseSearch && e.target !== searchBtn) {
+            searchResults.style.display = 'none';
+        }
+    });
+
+    // Поиск по нажатию Enter
+    courseSearch.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            searchCourses(courseSearch.value);
+        }
+    });
+});
 </script>
 </body>
 </html>

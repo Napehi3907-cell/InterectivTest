@@ -1,4 +1,15 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+$user_role = $_SESSION['role'];
+$user_name = $_SESSION['full_name'];
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -13,10 +24,20 @@ define('ROOT_PATH', realpath(__DIR__ . '/../') . '/');
 $error_message = '';
 $success_message = '';
 $courses = [];
-$student_id = $_SESSION['id_студента'] ?? 1; // ID студента из сессии
+$student_id = $user_id;
 
 // Получаем список всех курсов
-$sql_courses = "SELECT id_курса, название, описание FROM Курсы ORDER BY название";
+$sql_courses = "
+    SELECT
+        k.id_курса,
+        k.название,
+        k.описание,
+        p.id_преподавателя,
+        p.фио AS фио_преподавателя
+    FROM Курсы k
+    LEFT JOIN Преподаватели p ON k.id_преподавателя = p.id_преподавателя
+    ORDER BY k.название
+";
 $stmt_courses = sqlsrv_query($link, $sql_courses);
 
 if ($stmt_courses === false) {
@@ -34,26 +55,40 @@ function getCourseProgress($link, $student_id, $course_id) {
         SELECT
             c.id_курса,
             c.название,
-            COUNT(DISTINCT l.id_урока) AS общее_количество_уроков,
+            (SELECT COUNT(*) FROM Уроки WHERE id_курса = c.id_курса) AS общее_количество_уроков,
             COUNT(DISTINCT p.id_урока) AS пройденных_уроков,
             CASE
-                WHEN COUNT(DISTINCT l.id_урока) = 0 THEN 0
-                ELSE ROUND(COUNT(DISTINCT p.id_урока) * 100 / COUNT(DISTINCT l.id_урока), 2)
+                WHEN (SELECT COUNT(*) FROM Уроки WHERE id_курса = c.id_курса) = 0 THEN 0
+                ELSE ROUND(COUNT(DISTINCT p.id_урока) * 100 / (SELECT COUNT(*) FROM Уроки WHERE id_курса = c.id_курса), 2)
             END AS процент_выполнения
         FROM Курсы c
-        LEFT JOIN Уроки l ON c.id_курса = l.id_курса
-        LEFT JOIN Прогресс_Курса p ON l.id_урока = p.id_урока AND p.id_студента = ?
+        LEFT JOIN Прогресс_Курса p ON c.id_курса = p.id_курса AND p.id_студента = ?
         WHERE c.id_курса = ?
         GROUP BY c.id_курса, c.название
     ";
 
     $params = [$student_id, $course_id];
     $stmt_progress = sqlsrv_prepare($link, $sql_progress, $params);
-    $progress_data = null;
 
-    if (sqlsrv_execute($stmt_progress)) {
-        $progress_data = sqlsrv_fetch_array($stmt_progress, SQLSRV_FETCH_ASSOC);
+    if ($stmt_progress === false) {
+        log_sqlsrv_errors("Подготовка запроса прогресса курса");
+        return [
+            'общее_количество_уроков' => 0,
+            'пройденных_уроков' => 0,
+            'процент_выполнения' => 0
+        ];
     }
+
+    if (!sqlsrv_execute($stmt_progress)) {
+        log_sqlsrv_errors("Выполнение запроса прогресса курса");
+        return [
+            'общее_количество_уроков' => 0,
+            'пройденных_уроков' => 0,
+            'процент_выполнения' => 0
+        ];
+    }
+
+    $progress_data = sqlsrv_fetch_array($stmt_progress, SQLSRV_FETCH_ASSOC);
 
     return $progress_data ?: [
         'общее_количество_уроков' => 0,
@@ -99,13 +134,93 @@ function getCourseProgress($link, $student_id, $course_id) {
             font-size: 0.9em;
             color: #666;
         }
+        .search-container {
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+}
+
+#courseSearch {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+#searchBtn {
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#searchBtn:hover {
+    background: #0056b3;
+}
+
+.search-results {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.search-result-item {
+    padding: 8px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.search-result-item:hover {
+    background: #f8f9fa;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+.teacher-info {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+    font-size: 0.9em;
+}
+
+.teacher-link {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.teacher-link:hover {
+    text-decoration: underline;
+    color: #0056b3;
+}
+
+.no-teacher {
+    color: #6c757d;
+    font-style: italic;
+}
     </style>
 </head>
 
 <body class="container">
     <header>
         <div class="nav-bar">
-            <span>Добро пожаловать, Ученик!</span>
+            <span>Добро пожаловать <?php
+    if (isset($_SESSION['full_name']) && !empty($_SESSION['full_name'])) {
+        echo htmlspecialchars($_SESSION['full_name']);
+    } elseif (isset($_SESSION['login']) && !empty($_SESSION['login'])) {
+        echo htmlspecialchars($_SESSION['login']);
+    } else {
+        echo 'Пользователь';
+    }
+    ?></span>
             <a href="../student/Name.php">Изменить имя</a>
             <a href="../Login.php">Выход</a>
         </div>
@@ -113,6 +228,16 @@ function getCourseProgress($link, $student_id, $course_id) {
 
     <main>
         <h2>Раздел Уроков</h2>
+        <div class="search-container">
+    <input type="text" id="courseSearch" placeholder="Введите название курса для поиска..." aria-label="Поиск курсов">
+    <button type="button" id="searchBtn">Найти</button>
+</div>
+
+<div id="searchResults" class="search-results" style="display: none;">
+    <h3>Результаты поиска:</h3>
+    <ul id="searchResultsList"></ul>
+</div>
+
         <p>Здесь ученики могут выбирать и проходить интерактивные уроки.</p>
 
         <!-- Список курсов и уроков -->
@@ -127,7 +252,7 @@ function getCourseProgress($link, $student_id, $course_id) {
             <div class="success-message"><?php echo htmlspecialchars($success_message); ?></div>
                 <?php endif; ?>
 
-                <ul class="courses-list">
+                <ol class="courses-list">
                     <?php foreach ($courses as $course): ?>
                         <li class="course-item">
                             <h2><?php echo htmlspecialchars($course['название']); ?></h2>
@@ -147,6 +272,17 @@ function getCourseProgress($link, $student_id, $course_id) {
             <?php echo $progress['общее_количество_уроков']; ?> уроков)
         </div>
     </div>
+    
+<div class="teacher-info">
+    <?php if (!empty($course['фио_преподавателя'])): ?>
+       <a href="../student/Profil_teacher.php?id_преподавателя=<?php echo (int)$course['id_преподавателя']; ?>" class="teacher-link">
+    <?php echo htmlspecialchars($course['фио_преподавателя']); ?>
+
+        </a>
+    <?php else: ?>
+        <span class="no-teacher">Преподаватель не указан</span>
+    <?php endif; ?>
+</div>
 
     <!-- Список уроков внутри курса -->
     <ul class="lessons-list" id="lessons-<?php echo $course['id_курса']; ?>" style="display: none;">
@@ -192,10 +328,10 @@ function getCourseProgress($link, $student_id, $course_id) {
                 // Определяем URL и текст кнопки в зависимости от типа урока
                 if ($lesson['is_video']) {
                     $url = "../student/VideoUrok.php?id_урока=" . $lesson['id_урока'];
-                    $buttonText = "Смотреть видеоурок";
+                    $buttonText = "🎞 Смотреть видеоурок";
                 } else {
                     $url = "../student/Uroki.php?id_урока=" . $lesson['id_урока'];
-                    $buttonText = "Начать урок";
+                    $buttonText = "📖 Начать урок";
                 }
 
                 echo '<a href="' . $url . '" class="btn">' . $buttonText . '</a>';
@@ -206,13 +342,13 @@ function getCourseProgress($link, $student_id, $course_id) {
         }
         ?>
             </ul>
-            <button type="button" class="toggle-lessons-btn"
+            <button type="button" class="btn"
                     onclick="toggleLessons(<?php echo $course['id_курса']; ?>)">
                 Показать/скрыть уроки
             </button>
         </li>
     <?php endforeach; ?>
-</ul>
+</ol>
 </section>
 </div>
 </main>
@@ -232,6 +368,99 @@ function toggleLessons(courseId) {
     }
 }
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const courseSearch = document.getElementById('courseSearch');
+    const searchBtn = document.getElementById('searchBtn');
+    const searchResults = document.getElementById('searchResults');
+    const searchResultsList = document.getElementById('searchResultsList');
+
+    // Получаем все курсы из DOM
+    const courseItems = document.querySelectorAll('.course-item');
+    const courseTitles = [];
+
+    courseItems.forEach(item => {
+        const titleElement = item.querySelector('h2');
+        if (titleElement) {
+            courseTitles.push({
+                title: titleElement.textContent,
+                element: item
+            });
+        }
+    });
+
+    // Функция поиска курсов
+    function searchCourses(query) {
+        searchResultsList.innerHTML = '';
+
+        if (!query.trim()) {
+            searchResults.style.display = 'none';
+            return;
+        }
+
+        const results = courseTitles.filter(course =>
+            course.title.toLowerCase().includes(query.toLowerCase())
+        );
+
+        if (results.length > 0) {
+            results.forEach(result => {
+                const li = document.createElement('li');
+                li.className = 'search-result-item';
+                li.textContent = result.title;
+                li.addEventListener('click', () => {
+                    scrollToCourse(result.element);
+                    searchResults.style.display = 'none';
+                    courseSearch.value = '';
+                });
+                searchResultsList.appendChild(li);
+            });
+            searchResults.style.display = 'block';
+        } else {
+            searchResultsList.innerHTML = '<li>Курсы не найдены</li>';
+            searchResults.style.display = 'block';
+        }
+    }
+
+    // Функция прокрутки к курсу
+    function scrollToCourse(courseElement) {
+        courseElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+
+        // Визуальный эффект выделения
+        courseElement.style.background = '#e8f4fd';
+        setTimeout(() => {
+            courseElement.style.transition = 'background 0.5s';
+            courseElement.style.background = '#f9f9f9';
+        }, 1500);
+    }
+
+    // Обработчики событий
+    searchBtn.addEventListener('click', () => {
+        searchCourses(courseSearch.value);
+    });
+
+    courseSearch.addEventListener('input', () => {
+        searchCourses(courseSearch.value);
+    });
+
+    // Закрытие результатов при клике вне области
+    document.addEventListener('click', (e) => {
+        if (!searchResults.contains(e.target) && e.target !== courseSearch && e.target !== searchBtn) {
+            searchResults.style.display = 'none';
+        }
+    });
+
+    // Поиск по нажатию Enter
+    courseSearch.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            searchCourses(courseSearch.value);
+        }
+    });
+});
+</script>
+
 </body>
 </html>
 

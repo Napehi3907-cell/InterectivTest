@@ -1,29 +1,53 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+$user_role = $_SESSION['role'];
+$user_name = $_SESSION['full_name'];
+
+
+
+?>
 <!DOCTYPE html>
 <html lang="ru">
 
 <head>
 
     <meta charset="UTF-8">
-    <title>Редактирование ФИО пользователя</title>
+    <title>Главное меню</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
 
 
 <head>
     <meta charset="UTF-8">
-    <title>Редактирование ФИО пользователя</title>
+    <title>Главное меню</title>
      <header>
         <div class="nav-bar">
             <!-- Кнопка для открытия Sidebar -->
             <button class="openbtn" id="openBtn">☰ Меню</button>
-            <span>Создание видио урока</span>
+            <a href="../teacher/Profil_teacher.php">Профиль</a>
+            <span>Добро пожаловать, <?php
+    if (isset($_SESSION['full_name']) && !empty($_SESSION['full_name'])) {
+        echo htmlspecialchars($_SESSION['full_name']);
+    } elseif (isset($_SESSION['login']) && !empty($_SESSION['login'])) {
+        echo htmlspecialchars($_SESSION['login']);
+    } else {
+        echo 'Пользователь';
+    }
+    ?>! </span>
         </div>
     </header>
         <div id="mySidebar" class="sidebar closed">
         <!-- Кнопка закрытия (крестик) -->
         <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
         
-        <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.html">Главная</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.php">Главная</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php">прогресс</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>
@@ -31,7 +55,7 @@
         
         <!-- Кнопка выхода -->
         <button name="login_as_regist" class="Regis-btn">
-            <a href="http://localhost/переделанная/15/your_project_folder/teacher/login.php" class="no-underline">
+            <a href="http://localhost/переделанная/15/your_project_folder/login.php" class="no-underline">
                 Выход
             </a>
         </button>
@@ -183,7 +207,7 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(116, 86, 86, 0.1);
-            max-width: 477px;
+            max-width: max-content;
             min-width: 300px;
             height: auto;
 
@@ -252,9 +276,9 @@
         <main class="ma">
             <div class="container1">
                 <div class="box">
-                    <h3>
-                        Создание курса
-                    </h3>
+                   <div class="card-icon green-icon">🎓</div>
+            <h3 class="card-title">Создание курса</h3>
+            <p class="card-desc">Создайте новый образовательный курс</p>
                     <a href="http://localhost/переделанная/15/your_project_folder/teacher/create_course.php">
                          <button type="submit" class="Regis-btn">
                         Создание
@@ -264,19 +288,20 @@
 
                 </div>
                 <div class="box">
-                    <h3>
-                        Редактирование курса
-                    </h3>
-                    <a href="http://localhost/переделанная/15/your_project_folder/teacher/create_course.php">
+                    <div class="card-icon blue-icon">✏️</div>
+            <h3 class="card-title">Редактирование курса</h3>
+            <p class="card-desc">Измените существующие курсы</p>
+                    <a href="http://localhost/переделанная/15/your_project_folder/teacher/Redakt_Kurs.php">
                         <button type="submit" class="Regis-btn">
                         Редактирование
                     </button>
                     </a>
                     
                 </div>
-                <div class="box1"><h3>
-                        Курсы и уроки
-                    </h3>
+                <div class="box1">
+                    <div class="card-icon purple-icon">📚</div>
+            <h3 class="card-title">Курсы и уроки</h3>
+            <p class="card-desc">Просмотр всех доступных курсов</p>
                     <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">  <button type="submit" class="Regis-btn">
                         Курсы и уроки
                     </button>
@@ -285,9 +310,17 @@
                     
                 </div>
                 <div class="box">
-                <h3>Управление прогрессом учеников</h3>
+              <div class="card-icon yellow-icon">📊</div>
+            <h3 class="card-title">Управление прогрессом учеников</h3>
+            <p class="card-desc">Отслеживание прогресса учащихся по курсам</p>
+                <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php"> 
                  <button type="submit" class="Regis-btn">Отслеживать прогресс</button>
+</a>
+                 
+                 <a href="http://localhost/переделанная/15/your_project_folder/teacher/report_settings.php">
                  <button type="submit" class="Regis-btn">Отчет</button>
+                </a>
+
                 </div>
             
             </div>
