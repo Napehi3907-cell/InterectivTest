@@ -27,7 +27,17 @@ $courses = [];
 $student_id = $user_id;
 
 // Получаем список всех курсов
-$sql_courses = "SELECT id_курса, название, описание FROM Курсы ORDER BY название";
+$sql_courses = "
+    SELECT
+        k.id_курса,
+        k.название,
+        k.описание,
+        p.id_преподавателя,
+        p.фио AS фио_преподавателя
+    FROM Курсы k
+    LEFT JOIN Преподаватели p ON k.id_преподавателя = p.id_преподавателя
+    ORDER BY k.название
+";
 $stmt_courses = sqlsrv_query($link, $sql_courses);
 
 if ($stmt_courses === false) {
@@ -174,7 +184,28 @@ function getCourseProgress($link, $student_id, $course_id) {
 .search-result-item:last-child {
     border-bottom: none;
 }
+.teacher-info {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+    font-size: 0.9em;
+}
 
+.teacher-link {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.teacher-link:hover {
+    text-decoration: underline;
+    color: #0056b3;
+}
+
+.no-teacher {
+    color: #6c757d;
+    font-style: italic;
+}
     </style>
 </head>
 
@@ -241,6 +272,17 @@ function getCourseProgress($link, $student_id, $course_id) {
             <?php echo $progress['общее_количество_уроков']; ?> уроков)
         </div>
     </div>
+    
+<div class="teacher-info">
+    <?php if (!empty($course['фио_преподавателя'])): ?>
+       <a href="../student/Profil_teacher.php?id_преподавателя=<?php echo (int)$course['id_преподавателя']; ?>" class="teacher-link">
+    <?php echo htmlspecialchars($course['фио_преподавателя']); ?>
+
+        </a>
+    <?php else: ?>
+        <span class="no-teacher">Преподаватель не указан</span>
+    <?php endif; ?>
+</div>
 
     <!-- Список уроков внутри курса -->
     <ul class="lessons-list" id="lessons-<?php echo $course['id_курса']; ?>" style="display: none;">
