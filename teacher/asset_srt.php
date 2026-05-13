@@ -47,15 +47,15 @@ $user_name = $_SESSION['full_name'];
         <!-- Кнопка закрытия (крестик) -->
         <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
         
-        <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.php">Главная</a>
-        <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
-        <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php">прогресс</a>
-        <a href="http://localhost/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>
+        <a href="http://26.12.235.253/переделанная/15/your_project_folder/teacher/asset_srt.php">Главная</a>
+        <a href="http://26.12.235.253/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
+        <a href="http://26.12.235.253/переделанная/15/your_project_folder/teacher/ProgressSt.php">прогресс</a>
+        <a href="http://26.12.235.253/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>
         <hr style="border-color: #4a637a; margin: 10px 20px;">
         
         <!-- Кнопка выхода -->
         <button name="login_as_regist" class="Regis-btn">
-            <a href="http://localhost/переделанная/15/your_project_folder/login.php" class="no-underline">
+            <a href="http://26.12.235.253/переделанная/15/your_project_folder/login.php" class="no-underline">
                 Выход
             </a>
         </button>
@@ -279,7 +279,7 @@ $user_name = $_SESSION['full_name'];
                    <div class="card-icon green-icon">🎓</div>
             <h3 class="card-title">Создание курса</h3>
             <p class="card-desc">Создайте новый образовательный курс</p>
-                    <a href="http://localhost/переделанная/15/your_project_folder/teacher/create_course.php">
+                    <a href="http://26.12.235.253/переделанная/15/your_project_folder/teacher/create_course.php">
                          <button type="submit" class="Regis-btn">
                         Создание
                     </button>
@@ -291,7 +291,7 @@ $user_name = $_SESSION['full_name'];
                     <div class="card-icon blue-icon">✏️</div>
             <h3 class="card-title">Редактирование курса</h3>
             <p class="card-desc">Измените существующие курсы</p>
-                    <a href="http://localhost/переделанная/15/your_project_folder/teacher/Redakt_Kurs.php">
+                    <a href="http://26.12.235.253/переделанная/15/your_project_folder/teacher/Redakt_Kurs.php">
                         <button type="submit" class="Regis-btn">
                         Редактирование
                     </button>
@@ -302,7 +302,7 @@ $user_name = $_SESSION['full_name'];
                     <div class="card-icon purple-icon">📚</div>
             <h3 class="card-title">Курсы и уроки</h3>
             <p class="card-desc">Просмотр всех доступных курсов</p>
-                    <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">  <button type="submit" class="Regis-btn">
+                    <a href="http://26.12.235.253/переделанная/15/your_project_folder/teacher/UrokiPlus.php">  <button type="submit" class="Regis-btn">
                         Курсы и уроки
                     </button>
                         
@@ -313,11 +313,11 @@ $user_name = $_SESSION['full_name'];
               <div class="card-icon yellow-icon">📊</div>
             <h3 class="card-title">Управление прогрессом учеников</h3>
             <p class="card-desc">Отслеживание прогресса учащихся по курсам</p>
-                <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php"> 
+                <a href="http://26.12.235.253/переделанная/15/your_project_folder/teacher/ProgressSt.php"> 
                  <button type="submit" class="Regis-btn">Отслеживать прогресс</button>
 </a>
                  
-                 <a href="http://localhost/переделанная/15/your_project_folder/teacher/report_settings.php">
+                 <a href="http://26.12.235.253/переделанная/15/your_project_folder/teacher/report_settings.php">
                  <button type="submit" class="Regis-btn">Отчет</button>
                 </a>
 

@@ -219,14 +219,14 @@ body {
 
         <div class="profile-actions">
 
-        <a href="http://localhost/переделанная/15/your_project_folder/teacher/RedecktProf.php">
+        <a href="http://26.12.235.253/переделанная/15/your_project_folder/teacher/RedecktProf.php">
 
         
             <button class="btn btn-primary">Редактировать профиль</button>
 </a>
 
 
-            <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.php">
+            <a href="http://26.12.235.253/переделанная/15/your_project_folder/teacher/asset_srt.php">
                 <button class="btn btn-secondary">Главное меню</button>
             </a>
         </div>

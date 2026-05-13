@@ -65,7 +65,7 @@ if (isset($_GET['id_урока'])) {
     <header>
         <div class="nav-bar">
             <span>Добро пожаловать, Ученик!</span>
-            <a href="http://localhost/15/your_project_folder/student/lesson_Html.php">Выход</a>
+            <a href="http://26.12.235.253/15/your_project_folder/student/lesson_Html.php">Выход</a>
         
         </div>
     </header>

@@ -143,16 +143,16 @@ if ($selected_course_id) {
     <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
     
     <!-- Пункты меню -->
-   <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.php">Главная</a>
-        <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
-        <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php">прогресс</a>
-        <a href="http://localhost/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>
+   <a href="http://26.12.235.253/переделанная/15/your_project_folder/teacher/asset_srt.php">Главная</a>
+        <a href="http://26.12.235.253/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
+        <a href="http://26.12.235.253/переделанная/15/your_project_folder/teacher/ProgressSt.php">прогресс</a>
+        <a href="http://26.12.235.253/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>
     
     <hr style="border-color: #4a637a; margin: 10px 20px;">
     
     <!-- Кнопка выхода -->
     <button class="Regis-btn">
-        <a href="http://localhost/переделанная/15/your_project_folder/login.php" class="no-underline">Выход</a>
+        <a href="http://26.12.235.253/переделанная/15/your_project_folder/login.php" class="no-underline">Выход</a>
     </button>
 </div>
     <main>

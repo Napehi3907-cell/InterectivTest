@@ -90,10 +90,10 @@ if ($role === 'преподаватель') {
 
             // Перенаправляем в зависимости от роли
             if ($role === 'препод') {
-                header("Location: http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.php");
+                header("Location: http://26.12.235.253/переделанная/15/your_project_folder/teacher/asset_srt.php");
                 exit;
             } elseif ($role === 'ученик') {
-                header("Location: http://localhost/переделанная/15/your_project_folder/student/lessen_html2.php");
+                header("Location: http://26.12.235.253/переделанная/15/your_project_folder/student/lessen_html2.php");
                 exit;
             }
         }
@@ -215,7 +215,7 @@ if ($role === 'преподаватель') {
                 <button type="submit" name="login_as_teacher" class="teacher-btn">Войти как учитель</button>
             </div>
             <button class="Registr-btn">
-                <a href="http://localhost/15/your_project_folder/Registr.html" class="no-underline">
+                <a href="http://26.12.235.253/15/your_project_folder/Registr.html" class="no-underline">
                     Регистрация
                 </a>
             </button>

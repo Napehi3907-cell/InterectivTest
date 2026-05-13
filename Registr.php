@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 if (sqlsrv_execute($stmt_register_user)) {
                     $success_message = "Регистрация прошла успешно! Теперь вы можете войти.";
-                    header("Location: http://localhost/15/your_project_folder/Login.php");
+                    header("Location: http://26.12.235.253/передаланная/15/your_project_folder/Login.php");
             exit;
                 } else {
                     log_sqlsrv_errors("Выполнение запроса регистрации пользователя");

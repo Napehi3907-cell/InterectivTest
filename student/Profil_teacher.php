@@ -208,7 +208,7 @@ body {
 
         <div class="profile-actions">
 
-            <a href="http://localhost/переделанная/15/your_project_folder/student/lessen_html2.php">
+            <a href="http://26.12.235.253/переделанная/15/your_project_folder/student/lessen_html2.php">
                 <button class="btn btn-secondary">Главное меню</button>
             </a>
         </div>
