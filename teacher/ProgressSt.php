@@ -28,23 +28,24 @@ if ($stmt_courses === false) {
 // Если выбран курс, получаем прогресс всех студентов по этому курсу
 if ($selected_course_id) {
     $sql_progress = "
-        SELECT
-            s.id_студента,
-            s.фио AS имя,
-            COUNT(DISTINCT l.id_урока) AS общее_количество_уроков,
-            COUNT(DISTINCT p.id_урока) AS пройденных_уроков,
-            CASE
-                WHEN COUNT(DISTINCT l.id_урока) = 0 THEN 0
-                ELSE ROUND(COUNT(DISTINCT p.id_урока) * 100 / COUNT(DISTINCT l.id_урока), 2)
-            END AS процент_выполнения
-        FROM Обучающиеся s
-        CROSS JOIN Курсы c
-        LEFT JOIN Уроки l ON c.id_курса = l.id_курса
-        LEFT JOIN Прогресс_Курса p ON l.id_урока = p.id_урока AND s.id_студента = p.id_студента
-        WHERE c.id_курса = ?
-        GROUP BY s.id_студента, s.фио
-        ORDER BY процент_выполнения DESC
-    ";
+SELECT
+    s.id_студента,
+    s.фио AS имя,
+    s.логин AS логин,
+    COUNT(DISTINCT l.id_урока) AS общее_количество_уроков,
+    COUNT(DISTINCT p.id_урока) AS пройденных_уроков,
+    CASE
+        WHEN COUNT(DISTINCT l.id_урока) = 0 THEN 0
+        ELSE ROUND(COUNT(DISTINCT p.id_урока) * 100 / COUNT(DISTINCT l.id_урока), 2)
+    END AS процент_выполнения
+FROM Обучающиеся s
+CROSS JOIN Курсы c
+LEFT JOIN Уроки l ON c.id_курса = l.id_курса
+LEFT JOIN Прогресс_Курса p ON l.id_урока = p.id_урока AND s.id_студента = p.id_студента
+WHERE c.id_курса = ?
+GROUP BY s.id_студента, s.фио, s.логин
+ORDER BY процент_выполнения DESC
+";
 
     $params = [$selected_course_id];
     $stmt_progress = sqlsrv_prepare($link, $sql_progress, $params);
@@ -58,11 +59,22 @@ if ($selected_course_id) {
         $error_message = "Ошибка при получении прогресса студентов.";
     }
 }
+function getStudentDisplayName($student)
+{
+    if (!empty($student['имя'])) {
+        return htmlspecialchars($student['имя']);
+    } elseif (!empty($student['логин'])) {
+        return htmlspecialchars($student['логин']);
+    } else {
+        return 'Неизвестный пользователь';
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
-    
+
     <meta charset="UTF-8">
     <title>Прогресс учеников по курсам</title>
     <link rel="stylesheet" href="../css/style.css">
@@ -74,9 +86,11 @@ if ($selected_course_id) {
             margin-bottom: 15px;
             background: #f9f9f9;
         }
+
         .progress-container {
             margin-top: 10px;
         }
+
         .progress-bar-container {
             width: 100%;
             height: 20px;
@@ -85,27 +99,32 @@ if ($selected_course_id) {
             overflow: hidden;
             position: relative;
         }
+
         .progress-bar {
             height: 100%;
             background: linear-gradient(90deg, #4CAF50, #8BC34A);
             border-radius: 10px;
             transition: width 0.5s ease-in-out;
         }
+
         .progress-text {
             text-align: center;
             margin-top: 5px;
             font-size: 0.9em;
             color: #666;
         }
+
         .select-course {
             margin: 20px 0;
             padding: 10px;
             font-size: 16px;
             width: 300px;
         }
+
         .students-progress {
             margin-top: 20px;
         }
+
         .student-progress-item {
             padding: 12px;
             margin: 8px 0;
@@ -115,10 +134,12 @@ if ($selected_course_id) {
             align-items: center;
             justify-content: space-between;
         }
+
         .student-name {
             font-weight: bold;
             flex: 1;
         }
+
         .progress-info {
             text-align: right;
             white-space: nowrap;
@@ -130,46 +151,47 @@ if ($selected_course_id) {
 <body class="container">
 
     <header>
-        <div class="nav-bar"> 
+        <div class="nav-bar">
             <button class="openbtn" id="openBtn">☰ Меню</button>
             <span>Просмотр прогресса учеников</span>
-             
-            
+
+
         </div>
     </header>
 
-<div id="mySidebar" class="sidebar closed">
-    <!-- Кнопка закрытия (крестик) -->
-    <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
-    
-    <!-- Пункты меню -->
-   <a href="http://26.12.235.253/переделанная/15/your_project_folder/teacher/asset_srt.php">Главная</a>
-        <a href="http://26.12.235.253/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
-        <a href="http://26.12.235.253/переделанная/15/your_project_folder/teacher/ProgressSt.php">прогресс</a>
-        <a href="http://26.12.235.253/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>
-    
-    <hr style="border-color: #4a637a; margin: 10px 20px;">
-    
-    <!-- Кнопка выхода -->
-    <button class="Regis-btn">
-        <a href="http://26.12.235.253/переделанная/15/your_project_folder/login.php" class="no-underline">Выход</a>
-    </button>
-</div>
+    <div id="mySidebar" class="sidebar closed">
+        <!-- Кнопка закрытия (крестик) -->
+        <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
+
+        <!-- Пункты меню -->
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.php">Главная</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php">Прогресс</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/Klass_teacher.php">Класс</a>
+
+        <hr style="border-color: #4a637a; margin: 10px 20px;">
+
+        <!-- Кнопка выхода -->
+        <button class="Regis-btn">
+            <a href="http://localhost/переделанная/15/your_project_folder/login.php" class="no-underline">Выход</a>
+        </button>
+    </div>
     <main>
-        <h2>Прогресс учеников по курсам</h2>
-        <p>Выберите курс для просмотра прогресса всех учеников.</p>
+        <h2>Прогресс учеников по модулям</h2>
+        <p>Выберите модуль для просмотра прогресса всех учеников.</p>
 
         <!-- Выпадающий список для выбора курса -->
         <form method="GET" action="">
-            <label for="course_select">Выберите курс:</label>
+            <label for="course_select">Выберите модуль:</label>
             <select id="course_select" name="course_id" class="select-course" onchange="this.form.submit()">
-                <option value="">-- Выберите курс --</option>
+                <option value="">-- Выберите модуль --</option>
                 <?php foreach ($courses as $course): ?>
-                    <option value="<?php echo htmlspecialchars($course['id_курса']); ?>"
-                <?php if ($selected_course_id == $course['id_курса']) echo 'selected'; ?>>
-                <?php echo htmlspecialchars($course['название']); ?>
-            </option>
-        <?php endforeach; ?>
+                    <option value="<?php echo htmlspecialchars($course['id_курса']); ?>" <?php if ($selected_course_id == $course['id_курса'])
+                           echo 'selected'; ?>>
+                        <?php echo htmlspecialchars($course['название']); ?>
+                    </option>
+                <?php endforeach; ?>
             </select>
         </form>
 
@@ -180,72 +202,75 @@ if ($selected_course_id) {
         <!-- Отображение прогресса учеников, если выбран курс -->
         <?php if ($selected_course_id && !empty($students_progress)): ?>
             <div class="students-progress">
-                <h3>Прогресс учеников по курсу:</h3>
-                
+                <h3>Прогресс учеников по модулю:</h3>
+
                 <?php foreach ($students_progress as $student): ?>
                     <div class="student-progress-item">
-                    <span class="student-name"><?php echo htmlspecialchars($student['имя']); ?></span>
-                    
-            <!-- Прогресс‑бар для студента -->
-            <div class="progress-container" style="flex: 2; margin: 0 15px;">
-                <div class="progress-bar-container">
-                    <div class="progress-bar" style="width: <?php echo $student['процент_выполнения']; ?>%"></div>
-                </div>
+
+                        <span class="student-name"><?php echo getStudentDisplayName($student); ?></span>
+
+                        <!-- Прогресс‑бар для студента -->
+                        <div class=" progress-container" style="flex: 2; margin: 0 15px;">
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: <?php echo $student['процент_выполнения']; ?>%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Информация о прогрессе -->
+                        <div class="progress-info">
+                            <?php echo $student['процент_выполнения']; ?>%
+                            (<?php echo $student['пройденных_уроков']; ?> из
+                            <?php echo $student['общее_количество_уроков']; ?> уроков)
+                        </div>
+                    </div>
+                <?php endforeach; ?>
             </div>
-            
-            <!-- Информация о прогрессе -->
-            <div class="progress-info">
-                <?php echo $student['процент_выполнения']; ?>%
-                (<?php echo $student['пройденных_уроков']; ?> из
-                <?php echo $student['общее_количество_уроков']; ?> уроков)
-            </div>
-        </div>
-        <?php endforeach; ?>
-    </div>
-<?php elseif ($selected_course_id): ?>
-    <div class="no-data">По выбранному курсу пока нет данных о прогрессе учеников.</div>
-<?php endif; ?>
-</main>
+        <?php elseif ($selected_course_id): ?>
+            <div class="no-data">По выбранному модулю пока нет данных о прогрессе учеников.</div>
+        <?php endif; ?>
+    </main>
 
-<script>
-// Добавляем обработчик для формы, чтобы предотвратить множественные отправки
-document.querySelector('form').addEventListener('submit', function(e) {
-    // Предотвращаем повторную отправку формы при обновлении страницы
-    // Это нужно только для корректной работы выпадающего списка с onchange
-});
-</script>
-<script>
-    const sidebar = document.getElementById("mySidebar");
-    const openBtn = document.getElementById("openBtn");
-    const closeBtn = document.getElementById("closeBtn");
-    const body = document.body;
+    <script>
+        // Добавляем обработчик для формы, чтобы предотвратить множественные отправки
+        document.querySelector('form').addEventListener('submit', function (e) {
+            // Предотвращаем повторную отправку формы при обновлении страницы
+            // Это нужно только для корректной работы выпадающего списка с onchange
+        });
+    </script>
+    <script>
+        const sidebar = document.getElementById("mySidebar");
+        const openBtn = document.getElementById("openBtn");
+        const closeBtn = document.getElementById("closeBtn");
+        const body = document.body;
 
-    function openNav() {
-        sidebar.classList.remove("closed");
-        body.classList.add("sidebar-open");
-    }
-
-    function closeNav() {
-        sidebar.classList.add("closed");
-        body.classList.remove("sidebar-open");
-    }
-
-    openBtn.addEventListener('click', openNav);
-    closeBtn.addEventListener('click', closeNav);
-
-    // Закрытие Sidebar при клике вне его области
-    document.addEventListener('click', function(event) {
-        if (!sidebar.contains(event.target) && !openBtn.contains(event.target)) {
-            closeNav();
+        function openNav() {
+            sidebar.classList.remove("closed");
+            body.classList.add("sidebar-open");
         }
-    });
 
-    // Закрытие Sidebar при нажатии Escape
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            closeNav();
+        function closeNav() {
+            sidebar.classList.add("closed");
+            body.classList.remove("sidebar-open");
         }
-    });
-</script>
+
+        openBtn.addEventListener('click', openNav);
+        closeBtn.addEventListener('click', closeNav);
+
+        // Закрытие Sidebar при клике вне его области
+        document.addEventListener('click', function (event) {
+            if (!sidebar.contains(event.target) && !openBtn.contains(event.target)) {
+                closeNav();
+            }
+        });
+
+        // Закрытие Sidebar при нажатии Escape
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeNav();
+            }
+        });
+    </script>
+
 </body>
+
 </html>

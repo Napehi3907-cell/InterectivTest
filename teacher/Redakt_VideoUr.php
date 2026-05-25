@@ -1,5 +1,5 @@
 <?php
-// Redakt_urok.php
+// Redakt_urok.php — для редактирования видеоуроков
 
 session_start();
 ini_set('display_errors', 1);
@@ -14,17 +14,17 @@ $success_message = '';
 $lesson_id = $_GET['id_урока'] ?? null;
 $lesson = null;
 
-// Получаем данные урока для редактирования
+// Получаем данные видеоурока для редактирования
 if ($lesson_id) {
-    $sql_get_lesson = "SELECT id_урока, id_курса, название, описание, контент1, контент2, контент3, контент4, картинка FROM Уроки WHERE id_урока = ?";
+    $sql_get_lesson = "SELECT id_урока, id_курса, название, описание, контент, Ссылка FROM Видео_Уроки WHERE id_урока = ?";
     $params_get_lesson = [$lesson_id];
 
     $stmt_get_lesson = sqlsrv_prepare($link, $sql_get_lesson, $params_get_lesson);
     if ($stmt_get_lesson !== false && sqlsrv_execute($stmt_get_lesson)) {
         $lesson = sqlsrv_fetch_array($stmt_get_lesson, SQLSRV_FETCH_ASSOC);
     } else {
-        log_sqlsrv_errors("Получение данных урока для редактирования");
-        $error_message = "Ошибка при получении данных урока.";
+        log_sqlsrv_errors("Получение данных видеоурока для редактирования");
+        $error_message = "Ошибка при получении данных видеоурока.";
     }
 }
 
@@ -34,51 +34,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_lesson'])) {
     $course_id = trim($_POST['course_id']);
     $lesson_name = trim($_POST['lesson_name']);
     $description = trim($_POST['description']);
-    $content1 = trim($_POST['content1']);
-    $content2 = trim($_POST['content2']);
-    $content3 = trim($_POST['content3']);
-    $content4 = trim($_POST['content4']);
-    $image_url = trim($_POST['image_url']);
+    $content = trim($_POST['content']);
+    $video_link = trim($_POST['video_link']);
 
     if (empty($course_id) || empty($lesson_name)) {
         $error_message = "Пожалуйста, заполните обязательные поля: ID курса и название урока.";
     } else {
-        // SQL‑запрос для обновления урока
-        $sql_update_lesson = "UPDATE Уроки SET id_курса = ?, название = ?, описание = ?, контент1 = ?, контент2 = ?, контент3 = ?, контент4 = ?, картинка = ? WHERE id_урока = ?";
+        // SQL‑запрос для обновления видеоурока
+        $sql_update_lesson = "UPDATE Видео_Уроки SET id_курса = ?, название = ?, описание = ?, контент = ?, Ссылка = ? WHERE id_урока = ?";
         $params_update_lesson = [
             $course_id,
             $lesson_name,
             $description,
-            $content1,
-            $content2,
-            $content3,
-            $content4,
-            $image_url,
+            $content,
+            $video_link,
             $lesson_id
         ];
 
         $stmt_update_lesson = sqlsrv_prepare($link, $sql_update_lesson, $params_update_lesson);
         if ($stmt_update_lesson === false) {
-            log_sqlsrv_errors("Подготовка запроса обновления урока");
-            $error_message = "Ошибка сервера при обновлении урока.";
+            log_sqlsrv_errors("Подготовка запроса обновления видеоурока");
+            $error_message = "Ошибка сервера при обновлении видеоурока.";
         } else {
             if (sqlsrv_execute($stmt_update_lesson)) {
-                $success_message = "Урок успешно обновлён!";
+                $success_message = "Видеоурок успешно обновлён!";
                 // Обновляем данные в переменной
                 $lesson = [
                     'id_урока' => $lesson_id,
                     'id_курса' => $course_id,
                     'название' => $lesson_name,
                     'описание' => $description,
-                    'контент1' => $content1,
-                    'контент2' => $content2,
-                    'контент3' => $content3,
-                    'контент4' => $content4,
-                    'картинка' => $image_url
+                    'контент' => $content,
+                    'Ссылка' => $video_link
                 ];
             } else {
-                log_sqlsrv_errors("Выполнение запроса обновления урока");
-                $error_message = "Ошибка сервера при обновлении урока.";
+                log_sqlsrv_errors("Выполнение запроса обновления видеоурока");
+                $error_message = "Ошибка сервера при обновлении видеоурока.";
             }
         }
     }
@@ -325,6 +316,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_lesson'])) {
                     <form method="post" action="Redakt_urok.php?id_урока=<?php echo $lesson['id_урока']; ?>">
                         <input type="hidden" name="lesson_id" value="<?php echo $lesson['id_урока']; ?>">
 
+
                         <div class="form-group">
                             <label for="course_id">ID курса:</label>
                             <input type="text" id="course_id" name="course_id"
@@ -332,49 +324,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_lesson'])) {
                         </div>
 
                         <div class="form-group">
-                            <label for="lesson_name">Название урока:</label>
+                            <label for="lesson_name">Название видеоурока:</label>
                             <input type="text" id="lesson_name" name="lesson_name"
                                 value="<?php echo htmlspecialchars($lesson['название'] ?? ''); ?>" required>
                         </div>
 
                         <div class="form-group">
-                            <label for="description">Описание урока:</label>
+                            <label for="description">Описание видеоурока:</label>
                             <textarea id="description" name="description"
                                 rows="3"><?php echo htmlspecialchars($lesson['описание'] ?? ''); ?></textarea>
                         </div>
 
                         <div class="form-group">
-                            <label for="content1">Контент 1 (введение):</label>
-                            <textarea id="content1" name="content1"
-                                rows="4"><?php echo htmlspecialchars($lesson['контент1'] ?? ''); ?></textarea>
+                            <label for="content">Контент видеоурока (текст перед видео):</label>
+                            <textarea id="content" name="content"
+                                rows="6"><?php echo htmlspecialchars($lesson['контент'] ?? ''); ?></textarea>
                         </div>
 
                         <div class="form-group">
-                            <label for="content2">Контент 2 (основная часть):</label>
-                            <textarea id="content2" name="content2"
-                                rows="6"><?php echo htmlspecialchars($lesson['контент2'] ?? ''); ?></textarea>
+                            <label for="video_link">Ссылка на видео:</label>
+                            <input type="text" id="video_link" name="video_link"
+                                value="<?php echo htmlspecialchars($lesson['Ссылка'] ?? ''); ?>">
+                            <small>Введите полную ссылку на видео (YouTube, Vimeo и т. д.)</small>
                         </div>
 
-                        <div class="form-group">
-                            <label for="content3">Контент 3 (примеры и задачи):</label>
-                            <textarea id="content3" name="content3"
-                                rows="5"><?php echo htmlspecialchars($lesson['контент3'] ?? ''); ?></textarea>
-                        </div>
+                        <button type="submit" name="update_lesson">Обновить видеоурок</button>
 
-                        <div class="form-group">
-                            <label for="content4">Контент 4 (домашнее задание):</label>
-                            <textarea id="content4" name="content4"
-                                rows="4"><?php echo htmlspecialchars($lesson['контент4'] ?? ''); ?></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="image_url">URL картинки:</label>
-                            <input type="text" id="image_url" name="image_url"
-                                value="<?php echo htmlspecialchars($lesson['картинка'] ?? ''); ?>">
-                            <small>Введите полный URL изображения</small>
-                        </div>
-
-                        <button type="submit" name="update_lesson">Обновить урок</button>
                     </form>
                 <?php else: ?>
                     <p>Урок не найден.</p>

@@ -11,8 +11,8 @@ $sql_courses = "SELECT id_курса, название, описание FROM К
 $stmt_courses = sqlsrv_query($link, $sql_courses);
 
 if ($stmt_courses === false) {
-    log_sqlsrv_errors("Подготовка запроса списка курсов");
-    $error_message = "Ошибка сервера при получении списка курсов.";
+    log_sqlsrv_errors("Подготовка запроса списка модулей для курса");
+    $error_message = "Ошибка сервера при получении списка модулей.";
 } else {
     while ($row = sqlsrv_fetch_array($stmt_courses, SQLSRV_FETCH_ASSOC)) {
         $courses[] = $row;

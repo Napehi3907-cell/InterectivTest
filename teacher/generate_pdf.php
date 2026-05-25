@@ -26,7 +26,7 @@ if ($stmt_course === false) {
     die("Ошибка выполнения запроса курса: " . print_r(sqlsrv_errors(), true));
 }
 $row_course = sqlsrv_fetch_array($stmt_course, SQLSRV_FETCH_ASSOC);
-$course_name = $row_course['название'] ?? 'Неизвестный курс';
+$course_name = $row_course['название'] ?? 'Неизвестный модуль';
 
 // --- ИСПРАВЛЕНИЕ 1: Безопасная сортировка (Защита от SQL-инъекции) ---
 $allowedSorts = [
@@ -110,7 +110,7 @@ $html = '
         <thead>
             <tr>
                 <th>Ученик</th>
-                <th>Прогресс в курсе</th>
+                <th>Прогресс в модуле</th>
                 <th>Процент выполнения</th>
             </tr>
         </thead>

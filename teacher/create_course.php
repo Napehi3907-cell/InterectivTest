@@ -65,6 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_bt'])) {
 ?>
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -76,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_bt'])) {
     <header>
         <div class="nav-bar">
             <button class="openbtn" id="openBtn">☰ Меню</button>
-            <span>Создание курса</span>
+            <span>Создание модуля</span>
         </div>
     </header>
 
@@ -86,6 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_bt'])) {
         <a href="../teacher/UrokiPlus.php">Уроки</a>
         <a href="../teacher/ProgressSt.php">Прогресс</a>
         <a href="../teacher/report_settings.php">Отчёты</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/Klass_teacher.php">Класс</a>
         <hr style="border-color: #4a637a; margin: 10px 20px;">
         <button class="Regis-btn">
             <a href="../Login.php" class="no-underline">Выход</a>
@@ -99,55 +101,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_bt'])) {
                     <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
                 <?php endif; ?>
                 <?php if (!empty($success_message)): ?>
-            <div class="success-message"><?php echo htmlspecialchars($success_message); ?></div>
+                    <div class="success-message"><?php echo htmlspecialchars($success_message); ?></div>
                 <?php endif; ?>
 
-                <h1>Создание курса</h1>
+                <h1>Создание модуля</h1>
                 <form method="post" action="create_course.php">
                     <div class="form-group">
-                        <label for="course_name">Название курса:</label>
+                        <label for="course_name">Название модуля:</label>
                         <input type="text" id="course_name" name="course_name" required>
                     </div>
-            <div class="form-group">
-                <label for="course_description">Описание курса:</label>
-                <textarea id="course_description" name="course_description" required></textarea>
+                    <div class="form-group">
+                        <label for="course_description">Описание модуля:</label>
+                        <textarea id="course_description" name="course_description" required></textarea>
+                    </div>
+                    <button type="submit" name="create_bt" class="btn save-btn">Создать модуль</button>
+                </form>
             </div>
-            <button type="submit" name="create_bt" class="btn save-btn">Создать курс</button>
-        </form>
-    </div>
-</section>
-</main>
+        </section>
+    </main>
 
-<script>
-    const sidebar = document.getElementById("mySidebar");
-    const openBtn = document.getElementById("openBtn");
-    const closeBtn = document.getElementById("closeBtn");
-    const body = document.body;
+    <script>
+        const sidebar = document.getElementById("mySidebar");
+        const openBtn = document.getElementById("openBtn");
+        const closeBtn = document.getElementById("closeBtn");
+        const body = document.body;
 
-    function openNav() {
-        sidebar.classList.remove("closed");
-        body.classList.add("sidebar-open");
-    }
-
-    function closeNav() {
-        sidebar.classList.add("closed");
-        body.classList.remove("sidebar-open");
-    }
-
-    openBtn.addEventListener('click', openNav);
-    closeBtn.addEventListener('click', closeNav);
-
-    document.addEventListener('click', function(event) {
-        if (!sidebar.contains(event.target) && !openBtn.contains(event.target)) {
-            closeNav();
+        function openNav() {
+            sidebar.classList.remove("closed");
+            body.classList.add("sidebar-open");
         }
-    });
 
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            closeNav();
+        function closeNav() {
+            sidebar.classList.add("closed");
+            body.classList.remove("sidebar-open");
         }
-    });
-</script>
+
+        openBtn.addEventListener('click', openNav);
+        closeBtn.addEventListener('click', closeNav);
+
+        document.addEventListener('click', function (event) {
+            if (!sidebar.contains(event.target) && !openBtn.contains(event.target)) {
+                closeNav();
+            }
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeNav();
+            }
+        });
+    </script>
 </body>
+
 </html>

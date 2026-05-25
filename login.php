@@ -64,19 +64,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error_message = "Ошибка сервера при проверке пользователя.";
             }
         }
-        
-if ($role === 'преподаватель') {
-    // Получаем id_преподавателя и сохраняем в сессию
-    $sql_get_teacher = "SELECT id_преподавателя FROM Преподаватели WHERE id_пользователя = ?";
-    $params_get = [$user_id];
-    $stmt_get = sqlsrv_prepare($link, $sql_get_teacher, $params_get);
-    if ($stmt_get && sqlsrv_execute($stmt_get)) {
-        $row = sqlsrv_fetch_array($stmt_get, SQLSRV_FETCH_ASSOC);
-        if ($row) {
-            $_SESSION['id_преподавателя'] = $row['id_преподавателя'];
+
+        if ($role === 'преподаватель') {
+            // Получаем id_преподавателя и сохраняем в сессию
+            $sql_get_teacher = "SELECT id_преподавателя FROM Преподаватели WHERE id_пользователя = ?";
+            $params_get = [$user_id];
+            $stmt_get = sqlsrv_prepare($link, $sql_get_teacher, $params_get);
+            if ($stmt_get && sqlsrv_execute($stmt_get)) {
+                $row = sqlsrv_fetch_array($stmt_get, SQLSRV_FETCH_ASSOC);
+                if ($row) {
+                    $_SESSION['id_преподавателя'] = $row['id_преподавателя'];
+                }
+            }
         }
-    }
-}
 
 
 
@@ -90,10 +90,10 @@ if ($role === 'преподаватель') {
 
             // Перенаправляем в зависимости от роли
             if ($role === 'препод') {
-                header("Location: http://26.12.235.253/переделанная/15/your_project_folder/teacher/asset_srt.php");
+                header("Location: http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.php");
                 exit;
             } elseif ($role === 'ученик') {
-                header("Location: http://26.12.235.253/переделанная/15/your_project_folder/student/lessen_html2.php");
+                header("Location: http://localhost/переделанная/15/your_project_folder/student/lessen_html2.php");
                 exit;
             }
         }
@@ -102,6 +102,7 @@ if ($role === 'преподаватель') {
 ?>
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -196,6 +197,7 @@ if ($role === 'преподаватель') {
         }
     </style>
 </head>
+
 <body>
     <div class="login-container">
         <h2>Авторизация</h2>
@@ -215,7 +217,7 @@ if ($role === 'преподаватель') {
                 <button type="submit" name="login_as_teacher" class="teacher-btn">Войти как учитель</button>
             </div>
             <button class="Registr-btn">
-                <a href="http://26.12.235.253/15/your_project_folder/Registr.html" class="no-underline">
+                <a href="http://localhost/переделанная/15/your_project_folder/Registr.php" class="no-underline">
                     Регистрация
                 </a>
             </button>
@@ -225,4 +227,5 @@ if ($role === 'преподаватель') {
         </form>
     </div>
 </body>
+
 </html>
