@@ -32,7 +32,7 @@ if (isset($_SESSION['success_message'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['up_bt'])) {
-    $course_id = (int)$_POST['course_id'];
+    $course_id = (int) $_POST['course_id'];
     $new_course_name = trim($_POST['new_course_name']);
     $new_course_description = trim($_POST['new_course_description']);
 
@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['up_bt'])) {
             }
         }
     }
-     if (isset($stmt_update_course)) {
+    if (isset($stmt_update_course)) {
         sqlsrv_free_stmt($stmt_update_course);
     }
 
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['up_bt'])) {
 
 
 // Закрываем соединение с базой данных в конце скрипта
-register_shutdown_function(function() use ($link) {
+register_shutdown_function(function () use ($link) {
     if ($link) {
         sqlsrv_close($link);
     }
@@ -76,12 +76,12 @@ register_shutdown_function(function() use ($link) {
 ?>
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <title>Редактирование курсов</title>
-     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style.css">
     <style>
-    
         * {
             margin: 0;
             padding: 0;
@@ -93,15 +93,16 @@ register_shutdown_function(function() use ($link) {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
         }
+
         .container {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(#3f87a6 10%, #ebf8e1a2 10%),
-    linear-gradient(to right, #ebf8e100 10%, #c73030 10% 10.2%, #ebf8e100 10.5%);
-  background-size: 100% 25px, 100% 100%;
-  background-repeat: repeat;
-  /* Add your background pattern here */
-}
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(#3f87a6 10%, #ebf8e1a2 10%),
+                linear-gradient(to right, #ebf8e100 10%, #c73030 10% 10.2%, #ebf8e100 10.5%);
+            background-size: 100% 25px, 100% 100%;
+            background-repeat: repeat;
+            /* Add your background pattern here */
+        }
 
 
         /* === Sidebar (левая панель) === */
@@ -152,7 +153,7 @@ register_shutdown_function(function() use ($link) {
             background-color: #2c3e50;
             padding: 10px 20px;
             color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .nav-bar {
@@ -200,7 +201,8 @@ register_shutdown_function(function() use ($link) {
             margin-bottom: 5px;
         }
 
-        input[type="text"], textarea {
+        input[type="text"],
+        textarea {
             width: 100%;
             padding: 8px;
             box-sizing: border-box;
@@ -267,71 +269,74 @@ register_shutdown_function(function() use ($link) {
         }
     </style>
 </head>
+
 <body class="container">
-     <header>
+    <header>
         <div class="nav-bar">
-          
-              <button class="openbtn" id="openBtn">☰ Меню</button>
-            <span>Просмотр прогресса учеников</span>
+
+            <button class="openbtn" id="openBtn">☰ Меню</button>
+            <span>Редактирование модулей</span>
         </div>
     </header>
 
-<div id="mySidebar" class="sidebar closed">
-    <!-- Кнопка закрытия (крестик) -->
-    <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
-    
-    <!-- Пункты меню -->
-  <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.php">Главная</a>
+    <div id="mySidebar" class="sidebar closed">
+        <!-- Кнопка закрытия (крестик) -->
+        <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
+
+        <!-- Пункты меню -->
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.php">Главная</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
-        <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php">прогресс</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php">Прогресс</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>
-    
-    <hr style="border-color: #4a637a; margin: 10px 20px;">
-    
-    <!-- Кнопка выхода -->
-    <button class="Regis-btn">
-        <a href="http://localhost/переделанная/15/your_project_folder/login.php" class="no-underline">Выход</a>
-    </button>
-</div>
-    <div class = "ma">
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/Klass_teacher.php">Класс</a>
 
-    
-    <h1>Редактирование учебных курсов</h1>
+        <hr style="border-color: #4a637a; margin: 10px 20px;">
 
-    <!-- Вывод сообщений об ошибках или успехе -->
-    <?php if ($error_message): ?>
-        <div class="message error"><?php echo htmlspecialchars($error_message); ?></div>
-    <?php endif; ?>
-    <?php if ($success_message): ?>
-        <div class="message success"><?php echo htmlspecialchars($success_message); ?></div>
-    <?php endif; ?>
+        <!-- Кнопка выхода -->
+        <button class="Regis-btn">
+            <a href="http://localhost/переделанная/15/your_project_folder/login.php" class="no-underline">Выход</a>
+        </button>
+    </div>
+    <div class="ma">
 
-    <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
-        <div class="form-group">
-            <label for="course_id">Выберите курс для редактирования:</label>
-            <select id="course_id" name="course_id" required>
-                <option value="">-- Выберите курс --</option>
-                <?php foreach ($courses as $course): ?>
-                    <option value="<?php echo (int)$course['id_курса']; ?>">
-                <?php echo htmlspecialchars($course['название']); ?>
-            </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
 
-        <div class="form-group">
-            <label for="new_course_name">Новое название курса:</label>
-            <input type="text" id="new_course_name" name="new_course_name" required>
-        </div>
+        <h1>Редактирование учебных модулей</h1>
 
-        <div class="form-group">
-            <label for="new_course_description">Новое описание курса:</label>
-            <textarea id="new_course_description" name="new_course_description" required></textarea>
-        </div>
+        <!-- Вывод сообщений об ошибках или успехе -->
+        <?php if ($error_message): ?>
+            <div class="message error"><?php echo htmlspecialchars($error_message); ?></div>
+        <?php endif; ?>
+        <?php if ($success_message): ?>
+            <div class="message success"><?php echo htmlspecialchars($success_message); ?></div>
+        <?php endif; ?>
 
-        <button type="submit" name="up_bt">Обновить курс</button>
-    </form>
-</div>
-    
+        <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+            <div class="form-group">
+                <label for="course_id">Выберите модуль для редактирования:</label>
+                <select id="course_id" name="course_id" required>
+                    <option value="">-- Выберите модуль --</option>
+                    <?php foreach ($courses as $course): ?>
+                        <option value="<?php echo (int) $course['id_курса']; ?>">
+                            <?php echo htmlspecialchars($course['название']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="new_course_name">Новое название модуля:</label>
+                <input type="text" id="new_course_name" name="new_course_name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="new_course_description">Новое описание модуля:</label>
+                <textarea id="new_course_description" name="new_course_description" required></textarea>
+            </div>
+
+            <button type="submit" name="up_bt">Обновить модуль</button>
+        </form>
+    </div>
+
 </body>
+
 </html>

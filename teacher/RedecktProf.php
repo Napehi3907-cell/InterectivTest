@@ -53,6 +53,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $sql = "UPDATE Преподаватели SET фио = ?, почта = ?, номер_телефона = ?, логин = ? WHERE id_преподавателя = ?";
                 $params = [$fio, $email, $phone, $login, $teacher_id];
             }
+            $class_id = filter_input(INPUT_POST, 'class_id', FILTER_VALIDATE_INT);
+
+            // Если выбран класс, обновляем связь
+            if ($class_id !== false && $class_id > 0) {
+                try {
+                    // Сначала убираем старую связь (если была)
+                    $sql_remove_old = "UPDATE Класс SET id_преподавателя = NULL WHERE id_преподавателя = ?";
+                    $params_remove = [$teacher_id];
+                    sqlsrv_query($link, $sql_remove_old, $params_remove);
+
+                    // Устанавливаем новую связь
+                    $sql_update_class = "UPDATE Класс SET id_преподавателя = ? WHERE id_класса = ?";
+                    $params_class = [$teacher_id, $class_id];
+                    $result_class = sqlsrv_query($link, $sql_update_class, $params_class);
+                    if ($result_class === false) {
+                        throw new Exception('Ошибка обновления класса: ' . print_r(sqlsrv_errors(), true));
+                    }
+                } catch (Exception $e) {
+                    $message = 'Ошибка при обновлении класса: ' . $e->getMessage();
+                    $message_type = 'error';
+                }
+            }
 
             $result = sqlsrv_query($link, $sql, $params);
 
@@ -76,10 +98,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $message_type = 'error';
     }
 }
+$sql_classes = "
+SELECT
+    id_класса,
+    название
+FROM Класс
+ORDER BY название
+";
+$params_classes = [];
+$stmt_classes = sqlsrv_query($link, $sql_classes, $params_classes);
+
+$teacher_classes = [];
+if ($stmt_classes !== false) {
+    while ($row = sqlsrv_fetch_array($stmt_classes, SQLSRV_FETCH_ASSOC)) {
+        $teacher_classes[] = $row;
+    }
+}
+
+// Получаем текущий класс преподавателя (если назначен)
+$current_class_id = null;
+if (!empty($teacher_classes)) {
+    $current_class_id = $teacher_classes[0]['id_класса']; // Берём первый класс как текущий
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <title>Редактирование данных преподавателя</title>
@@ -178,8 +223,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             border: none;
             cursor: pointer;
         }
+
+        .select-class {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: white;
+        }
+
+        .form-hint {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 5px;
+        }
     </style>
 </head>
+
 <body class="container">
     <header>
         <div class="nav-bar">
@@ -197,6 +259,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <a href="../teacher/UrokiPlus.php">Уроки</a>
         <a href="../teacher/ProgressSt.php">Прогресс</a>
         <a href="../teacher/report_settings.php">Отчёты</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/Klass_teacher.php">Класс</a>
 
         <hr style="border-color: #4a637a; margin: 10px 20px;">
 
@@ -214,60 +277,45 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <?php if (!empty($message)): ?>
                 <div class="message <?php echo $message_type === 'success' ? 'success-message' : 'error-message'; ?>">
                     <?php echo htmlspecialchars($message); ?>
-                </div>            <?php endif; ?>
+                </div> <?php endif; ?>
 
 
             <form method="POST" action="">
                 <div class="form-group">
                     <label for="fio">ФИО:</label>
-                    <input type="text"
-                   id="fio"
-                   name="fio"
-                   value="<?php echo htmlspecialchars($teacher_data['фио'] ?? ''); ?>"
-                   required>
+                    <input type="text" id="fio" name="fio"
+                        value="<?php echo htmlspecialchars($teacher_data['фио'] ?? ''); ?>" required>
                 </div>
 
                 <div class="form-group">
                     <label for="email">Электронная почта:</label>
-                    <input type="email"
-                   id="email"
-                   name="email"
-                   value="<?php echo htmlspecialchars($teacher_data['почта'] ?? ''); ?>"
-                   required>
+                    <input type="email" id="email" name="email"
+                        value="<?php echo htmlspecialchars($teacher_data['почта'] ?? ''); ?>" required>
                 </div>
 
                 <div class="form-group">
                     <label for="phone">Номер телефона:</label>
-                    <input type="tel"
-                   id="phone"
-                   name="phone"
-                   value="<?php echo htmlspecialchars($teacher_data['номер_телефона'] ?? ''); ?>"
-                   required>
+                    <input type="tel" id="phone" name="phone"
+                        value="<?php echo htmlspecialchars($teacher_data['номер_телефона'] ?? ''); ?>" required>
                 </div>
 
                 <div class="form-group">
                     <label for="login">Логин:</label>
-                    <input type="text"
-                   id="login"
-                   name="login"
-                   value="<?php echo htmlspecialchars($teacher_data['логин'] ?? ''); ?>"
-                   required>
+                    <input type="text" id="login" name="login"
+                        value="<?php echo htmlspecialchars($teacher_data['логин'] ?? ''); ?>" required>
                 </div>
 
                 <div class="form-group">
                     <label for="password">Новый пароль (оставьте пустым, если не меняете):</label>
                     <div class="password-input-wrapper">
-                        <input type="password"
-                       id="password"
-                       name="password"
-                       autocomplete="new-password">
-                        <button type="button"
-                        class="password-toggle-btn"
-                        onclick="togglePasswordVisibility()">
+                        <input type="password" id="password" name="password" autocomplete="new-password">
+                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility()">
                             👁️
                         </button>
                     </div>
                 </div>
+
+
 
                 <button type="submit" class="btn">Сохранить изменения</button>
             </form>
@@ -283,13 +331,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         // Обработка открытия/закрытия сайдбара
-        document.getElementById('openBtn').addEventListener('click', function() {
+        document.getElementById('openBtn').addEventListener('click', function () {
             document.getElementById('mySidebar').classList.remove('closed');
         });
 
-        document.getElementById('closeBtn').addEventListener('click', function() {
+        document.getElementById('closeBtn').addEventListener('click', function () {
             document.getElementById('mySidebar').classList.add('closed');
         });
     </script>
 </body>
+
 </html>

@@ -1,5 +1,5 @@
 <?php
-// Redakt_urok.php
+// Redakt_test.php — для редактирования тестов
 
 session_start();
 ini_set('display_errors', 1);
@@ -7,78 +7,72 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require_once '../includes/db_connect.php';
+
 define('ROOT_PATH', realpath(__DIR__ . '/../') . '/');
 
 $error_message = '';
 $success_message = '';
-$lesson_id = $_GET['id_урока'] ?? null;
-$lesson = null;
+$test_id = $_GET['id_test'] ?? null;
+$test = null;
 
-// Получаем данные урока для редактирования
-if ($lesson_id) {
-    $sql_get_lesson = "SELECT id_урока, id_курса, название, описание, контент1, контент2, контент3, контент4, картинка FROM Уроки WHERE id_урока = ?";
-    $params_get_lesson = [$lesson_id];
+// Получаем данные теста для редактирования
+if ($test_id) {
+    $sql_get_test = "SELECT * FROM TestUr WHERE id_test = ?";
+    $params_get_test = [$test_id];
+    $stmt_get_test = sqlsrv_prepare($link, $sql_get_test, $params_get_test);
 
-    $stmt_get_lesson = sqlsrv_prepare($link, $sql_get_lesson, $params_get_lesson);
-    if ($stmt_get_lesson !== false && sqlsrv_execute($stmt_get_lesson)) {
-        $lesson = sqlsrv_fetch_array($stmt_get_lesson, SQLSRV_FETCH_ASSOC);
+    if ($stmt_get_test !== false && sqlsrv_execute($stmt_get_test)) {
+        $test = sqlsrv_fetch_array($stmt_get_test, SQLSRV_FETCH_ASSOC);
+        if (!$test) {
+            $error_message = "Тест с ID $test_id не найден в базе данных.";
+        }
     } else {
-        log_sqlsrv_errors("Получение данных урока для редактирования");
-        $error_message = "Ошибка при получении данных урока.";
+        log_sqlsrv_errors("Получение данных теста для редактирования");
+        $error_message = "Ошибка при получении данных теста.";
     }
+} else {
+    $error_message = "ID теста не указан в URL.";
 }
 
-// Обработка формы редактирования
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_lesson'])) {
-    $lesson_id = trim($_POST['lesson_id']);
-    $course_id = trim($_POST['course_id']);
-    $lesson_name = trim($_POST['lesson_name']);
-    $description = trim($_POST['description']);
-    $content1 = trim($_POST['content1']);
-    $content2 = trim($_POST['content2']);
-    $content3 = trim($_POST['content3']);
-    $content4 = trim($_POST['content4']);
-    $image_url = trim($_POST['image_url']);
+// Обработка формы редактирования теста
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_test'])) {
+    $test_id = trim($_POST['test_id']);
+    $test_name = trim($_POST['test_name']);
+    $test_description = trim($_POST['test_description']);
+    $test_link = trim($_POST['testlink']);
+    $interactive_link = trim($_POST['interactive_link']);
 
-    if (empty($course_id) || empty($lesson_name)) {
-        $error_message = "Пожалуйста, заполните обязательные поля: ID курса и название урока.";
+    if (empty($test_name)) {
+        $error_message = "Пожалуйста, заполните название теста.";
     } else {
-        // SQL‑запрос для обновления урока
-        $sql_update_lesson = "UPDATE Уроки SET id_курса = ?, название = ?, описание = ?, контент1 = ?, контент2 = ?, контент3 = ?, контент4 = ?, картинка = ? WHERE id_урока = ?";
-        $params_update_lesson = [
-            $course_id,
-            $lesson_name,
-            $description,
-            $content1,
-            $content2,
-            $content3,
-            $content4,
-            $image_url,
-            $lesson_id
+        // SQL‑запрос для обновления теста
+        $sql_update_test = "UPDATE TestUr SET название = ?, описание = ?, ссылка = ?, ссылка_интерактив = ? WHERE id_test = ?";
+        $params_update_test = [
+            $test_name,
+            $test_description,
+            $test_link,
+            $interactive_link,
+            $test_id
         ];
 
-        $stmt_update_lesson = sqlsrv_prepare($link, $sql_update_lesson, $params_update_lesson);
-        if ($stmt_update_lesson === false) {
-            log_sqlsrv_errors("Подготовка запроса обновления урока");
-            $error_message = "Ошибка сервера при обновлении урока.";
+        $stmt_update_test = sqlsrv_prepare($link, $sql_update_test, $params_update_test);
+        if ($stmt_update_test === false) {
+            log_sqlsrv_errors("Подготовка запроса обновления теста");
+            $error_message = "Ошибка сервера при подготовке запроса обновления теста.";
         } else {
-            if (sqlsrv_execute($stmt_update_lesson)) {
-                $success_message = "Урок успешно обновлён!";
-                // Обновляем данные в переменной
-                $lesson = [
-                    'id_урока' => $lesson_id,
-                    'id_курса' => $course_id,
-                    'название' => $lesson_name,
-                    'описание' => $description,
-                    'контент1' => $content1,
-                    'контент2' => $content2,
-                    'контент3' => $content3,
-                    'контент4' => $content4,
-                    'картинка' => $image_url
+            if (sqlsrv_execute($stmt_update_test)) {
+                $success_message = "Тест успешно обновлён!";
+                // Обновляем данные теста в переменной
+                $test = [
+                    'id_test' => $test_id,
+                    'название' => $test_name,
+                    'описание' => $test_description,
+                    'ссылка' => $test_link,
+                    'ссылка_интерактив' => $interactive_link
                 ];
             } else {
-                log_sqlsrv_errors("Выполнение запроса обновления урока");
-                $error_message = "Ошибка сервера при обновлении урока.";
+                log_sqlsrv_errors("Выполнение запроса обновления теста");
+                $error_message = "Ошибка сервера при выполнении запроса обновления теста.";
             }
         }
     }
@@ -311,75 +305,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_lesson'])) {
     <mail>
         <div class="ma">
 
-            <div>
-                <h1>Редактирование урока</h1>
+            <h1>Редактирование теста</h1>
 
-                <?php if (!empty($error_message)): ?>
-                    <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
-                <?php endif; ?>
-                <?php if (!empty($success_message)): ?>
-                    <div class="success-message"><?php echo htmlspecialchars($success_message); ?></div>
-                <?php endif; ?>
+            <?php if (!empty($error_message)): ?>
+                <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
+            <?php endif; ?>
 
-                <?php if ($lesson): ?>
-                    <form method="post" action="Redakt_urok.php?id_урока=<?php echo $lesson['id_урока']; ?>">
-                        <input type="hidden" name="lesson_id" value="<?php echo $lesson['id_урока']; ?>">
+            <?php if (!empty($success_message)): ?>
+                <div class="success-message"><?php echo htmlspecialchars($success_message); ?></div>
+            <?php endif; ?>
 
-                        <div class="form-group">
-                            <label for="course_id">ID курса:</label>
-                            <input type="text" id="course_id" name="course_id"
-                                value="<?php echo htmlspecialchars($lesson['id_курса'] ?? ''); ?>" required>
-                        </div>
+            <?php if ($test): ?>
+                <form method="post" action="">
+                    <input type="hidden" name="test_id" value="<?php echo htmlspecialchars($test['id_test']); ?>">
 
-                        <div class="form-group">
-                            <label for="lesson_name">Название урока:</label>
-                            <input type="text" id="lesson_name" name="lesson_name"
-                                value="<?php echo htmlspecialchars($lesson['название'] ?? ''); ?>" required>
-                        </div>
+                    <div class="form-group">
+                        <label for="test_name">Название теста:</label>
+                        <input type="text" id="test_name" name="test_name"
+                            value="<?php echo htmlspecialchars($test['название']); ?>" required>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="description">Описание урока:</label>
-                            <textarea id="description" name="description"
-                                rows="3"><?php echo htmlspecialchars($lesson['описание'] ?? ''); ?></textarea>
-                        </div>
+                    <div class="form-group">
+                        <label for="test_description">Описание теста:</label>
+                        <textarea id="test_description" name="test_description" rows="3">
+                        <?php echo htmlspecialchars($test['описание']); ?>
+                    </textarea>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="content1">Контент 1 (введение):</label>
-                            <textarea id="content1" name="content1"
-                                rows="4"><?php echo htmlspecialchars($lesson['контент1'] ?? ''); ?></textarea>
-                        </div>
+                    <div class="form-group">
+                        <label for="testlink">Ссылка на тест:</label>
+                        <input type="text" id="testlink" name="testlink"
+                            value="<?php echo htmlspecialchars($test['ссылка']); ?>">
+                    </div>
 
-                        <div class="form-group">
-                            <label for="content2">Контент 2 (основная часть):</label>
-                            <textarea id="content2" name="content2"
-                                rows="6"><?php echo htmlspecialchars($lesson['контент2'] ?? ''); ?></textarea>
-                        </div>
+                    <div class="form-group">
+                        <label for="interactive_link">Ссылка на интерактивный вариант:</label>
+                        <input type="text" id="interactive_link" name="interactive_link"
+                            value="<?php echo htmlspecialchars($test['ссылка_интерактив']); ?>">
+                    </div>
 
-                        <div class="form-group">
-                            <label for="content3">Контент 3 (примеры и задачи):</label>
-                            <textarea id="content3" name="content3"
-                                rows="5"><?php echo htmlspecialchars($lesson['контент3'] ?? ''); ?></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="content4">Контент 4 (домашнее задание):</label>
-                            <textarea id="content4" name="content4"
-                                rows="4"><?php echo htmlspecialchars($lesson['контент4'] ?? ''); ?></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="image_url">URL картинки:</label>
-                            <input type="text" id="image_url" name="image_url"
-                                value="<?php echo htmlspecialchars($lesson['картинка'] ?? ''); ?>">
-                            <small>Введите полный URL изображения</small>
-                        </div>
-
-                        <button type="submit" name="update_lesson">Обновить урок</button>
-                    </form>
-                <?php else: ?>
-                    <p>Урок не найден.</p>
-                <?php endif; ?>
-            </div>
+                    <button type="submit" name="update_test" class="btn btn-primary">Сохранить изменения теста</button>
+                    <a href="UrokiPlus.php" class="btn btn-secondary">Вернуться к списку</a>
+                </form>
+            <?php else: ?>
+                <p>Тест не найден.</p>
+                <a href="UrokiPlus.php" class="btn btn-secondary">Вернуться к списку</a>
+            <?php endif; ?>
+        </div>
 
         </div>
     </mail>

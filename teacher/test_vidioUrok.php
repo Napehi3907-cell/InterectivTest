@@ -1,4 +1,3 @@
-
 <?php
 // test_vidioUrok.php
 
@@ -261,14 +260,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_video_lesson'])) 
 
 <body class="container">
     <!-- Sidebar (боковая панель навигации) -->
-     <div id="mySidebar" class="sidebar closed">
+    <div id="mySidebar" class="sidebar closed">
         <!-- Кнопка закрытия (крестик) -->
         <a href="javascript:void(0)" class="closebtn" id="closeBtn">×</a>
 
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/asset_srt.php">Главная</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/UrokiPlus.php">Уроки</a>
-        <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php">прогресс</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/ProgressSt.php">Прогресс</a>
         <a href="http://localhost/переделанная/15/your_project_folder/teacher/report_settings.php">Отчеты</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/teacher/Klass_teacher.php">Класс</a>
         <hr style="border-color: #4a637a; margin: 10px 20px;">
 
         <!-- Кнопка выхода -->
@@ -303,19 +303,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_video_lesson'])) 
 
         <form method="POST" action="">
             <div class="form-group">
-                <label for="lesson_name">Название урока *</label>
+                <label for="lesson_name">Название видео-урока *</label>
                 <input type="text" id="lesson_name" name="lesson_name"
                     value="<?php echo htmlspecialchars($lesson_name ?? ''); ?>" required>
             </div>
 
             <div class="form-group">
-                <label for="lesson_description">Описание урока</label>
+                <label for="lesson_description">Описание видео-урока</label>
                 <textarea id="lesson_description" name="lesson_description"
                     rows="4"><?php echo htmlspecialchars($lesson_description ?? ''); ?></textarea>
             </div>
 
             <div class="form-group">
-                <label for="lesson_content">Содержание урока</label>
+                <label for="lesson_content">Содержание видео-урока</label>
                 <textarea id="lesson_content" name="lesson_content"
                     rows="6"><?php echo htmlspecialchars($lesson_content ?? ''); ?></textarea>
             </div>
@@ -324,14 +324,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_video_lesson'])) 
                 <label for="video_link">Ссылка на видео *</label>
                 <input type="text" id="video_link" name="video_link"
                     value="<?php echo htmlspecialchars($video_link ?? ''); ?>" required
-                    placeholder="https://www.youtube.com/watch?v=...">
+                    placeholder="https://www.VK.com/watch?v=...">
             </div>
 
             <input type="hidden" name="add_video_lesson" value="1">
             <button type="submit" class="Regis-btn">Добавить видеоурок</button>
         </form>
 
-        
+
     </main>
 
     <script>

@@ -20,7 +20,8 @@ require_once '../includes/db_connect.php';
 $student_id = $user_id;
 
 // Функция для безопасной обработки входных данных
-function sanitizeInput($input) {
+function sanitizeInput($input)
+{
     if ($input === null) {
         return '';
     }
@@ -201,22 +202,22 @@ if ($student_id > 0) {
             transition: 0.3s;
             transform: scale(0.93);
         }
+
         .no-underline {
-text-decoration: none;
-}
-.error-message {
-color: red;
-text-align: center;
-margin-top: 10px;
-}
+            text-decoration: none;
+        }
 
-.success-message {
-color: green;
-text-align: center;
-margin-top: 10px;
-}
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
 
-
+        .success-message {
+            color: green;
+            text-align: center;
+            margin-top: 10px;
+        }
     </style>
 </head>
 
@@ -224,8 +225,8 @@ margin-top: 10px;
     <div>
         <main>
 
-<h1>Редактирование данных обучающегося</h1>
- <?php if ($success_message): ?>
+            <h1>Редактирование данных обучающегося</h1>
+            <?php if ($success_message): ?>
                 <div class="success-message"><?php echo $success_message; ?></div>
             <?php endif; ?>
 
@@ -236,53 +237,50 @@ margin-top: 10px;
 
 
 
-<?php if ($student_id <= 0): ?>
-    <div class="error-message">Не указан ID обучающегося.</div>
-<?php elseif ($current_data === null): ?>
-    <div class="error-message">Обучающийся с ID <?php echo $student_id; ?> не найден.</div>
-<?php else: ?>
-    <form method="post" action="">
-        <input type="hidden" name="id_студента" value="<?php echo $current_data['id_студента']; ?>">
+            <?php if ($student_id <= 0): ?>
+                <div class="error-message">Не указан ID обучающегося.</div>
+            <?php elseif ($current_data === null): ?>
+                <div class="error-message">Обучающийся с ID <?php echo $student_id; ?> не найден.</div>
+            <?php else: ?>
+                <form method="post" action="">
+                    <input type="hidden" name="id_студента" value="<?php echo $current_data['id_студента']; ?>">
 
-        <div class="form-group">
-            <label for="fio">ФИО:</label>
-            <input type="text" id="fio" name="фио" value="<?php echo htmlspecialchars($current_data['фио']); ?>" required>
-        </div>
-
-        <div class="form-group">
-            <label for="login">Логин:</label>
-            <input type="text" id="login" name="логин" value="<?php echo htmlspecialchars($current_data['логин']); ?>" required>
-        </div>
-
-        <div class="form-group">
-                    <label for="password">Новый пароль (оставьте пустым, если не меняете):</label>
-                    <div class="password-input-wrapper">
-                        <input type="password"
-                       id="password"
-                       name="password"
-                       autocomplete="new-password">
-                        <button type="button"
-                        class="password-toggle-btn"
-                        onclick="togglePasswordVisibility()">
-                            👁️
-                        </button>
+                    <div class="form-group">
+                        <label for="fio">ФИО:</label>
+                        <input type="text" id="fio" name="фио" value="<?php echo htmlspecialchars($current_data['фио']); ?>"
+                            required>
                     </div>
-                </div>
-        <button type="submit" class="btn">Сохранить изменения</button>
-    </form>
-    <div style="margin-top: 20px; text-align: center;">
-        <a href="lessen_html2.php"  >
-<button type="submit" class="btn"> Отмена</button>
-</a>
-    </div>
 
-<?php endif; ?>
+                    <div class="form-group">
+                        <label for="login">Логин:</label>
+                        <input type="text" id="login" name="логин"
+                            value="<?php echo htmlspecialchars($current_data['логин']); ?>" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Новый пароль (оставьте пустым, если не меняете):</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="password" name="password" autocomplete="new-password">
+                            <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility()">
+                                👁️
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn">Сохранить изменения</button>
+                </form>
+                <div style="margin-top: 20px; text-align: center;">
+                    <a href="lessen_html2.php">
+                        <button type="submit" class="btn"> Отмена</button>
+                    </a>
+                </div>
+
+            <?php endif; ?>
 
 
 
         </main>
     </div>
-     <script>
+    <script>
         // Функция для переключения видимости пароля
         function togglePasswordVisibility() {
             const passwordInput = document.getElementById('password');
@@ -291,11 +289,11 @@ margin-top: 10px;
         }
 
         // Обработка открытия/закрытия сайдбара
-        document.getElementById('openBtn').addEventListener('click', function() {
+        document.getElementById('openBtn').addEventListener('click', function () {
             document.getElementById('mySidebar').classList.remove('closed');
         });
 
-        document.getElementById('closeBtn').addEventListener('click', function() {
+        document.getElementById('closeBtn').addEventListener('click', function () {
             document.getElementById('mySidebar').classList.add('closed');
         });
     </script>
