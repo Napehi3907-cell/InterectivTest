@@ -89,7 +89,7 @@ if ($student_id > 0) {
 <header>
     <div class="nav-bar">
         <span>Добро пожаловать, Ученик!</span>
-        <a href="http://localhost/переделанная/15/your_project_folder/student/lesson_Html.php">Выход</a>
+        <a href="http://localhost/переделанная/15/your_project_folder/student/lessen_html2.php">Выход</a>
 
     </div>
 </header>

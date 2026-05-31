@@ -259,6 +259,37 @@ if ($stmt_temp_courses === false) {
         error_log("Ошибка выполнения запроса временных курсов: " . print_r(sqlsrv_errors(), true));
     }
 }
+if (isset($_POST['delete_temp_course']) && isset($_POST['temp_course_id'])) {
+    $temp_course_id = trim($_POST['temp_course_id']);
+
+    // Сначала удаляем все записи прогресса, связанные с этим временным курсом (если есть)
+    $sql_delete_progress = "DELETE FROM Прогресс_Курса WHERE id_вр = ?";
+    $stmt_delete_progress = sqlsrv_prepare($link, $sql_delete_progress, [$temp_course_id]);
+    if ($stmt_delete_progress === false) {
+        log_sqlsrv_errors("Подготовка запроса удаления прогресса временного курса");
+    } else {
+        if (!sqlsrv_execute($stmt_delete_progress)) {
+            log_sqlsrv_errors("Выполнение запроса удаления прогресса временного курса");
+        }
+    }
+
+    // Затем удаляем сам временный курс
+    $sql_delete_temp_course = "DELETE FROM Временный_курс WHERE id_вр = ?";
+    $params_delete_temp = [$temp_course_id];
+    $stmt_delete_temp = sqlsrv_prepare($link, $sql_delete_temp_course, $params_delete_temp);
+
+    if ($stmt_delete_temp === false) {
+        log_sqlsrv_errors("Подготовка запроса удаления временного курса");
+        $error_message = "Ошибка сервера при удалении временного модуля.";
+    } else {
+        if (sqlsrv_execute($stmt_delete_temp)) {
+            $success_message = "Временный модуль удалён успешно!";
+        } else {
+            log_sqlsrv_errors("Выполнение запроса удаления временного курса");
+            $error_message = "Ошибка сервера при удалении временного модуля.";
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -529,8 +560,10 @@ if ($stmt_temp_courses === false) {
         <div class="nav-bar">
             <button class="openbtn" id="openBtn">☰ Меню</button>
             <span>Модули и Уроки</span>
-
-            <button class="temp-course-btn" id="tempCourseBtn">⏰ Временные модули</button>
+<a href="">
+    <button class="temp-course-btn" id="tempCourseBtn">Все модули</button>
+</a>
+            
         </div>
     </header>
 
@@ -899,6 +932,12 @@ if ($stmt_temp_courses === false) {
                                     onclick="toggleLessons1('temp-lessons-<?php echo $temp_course['id_вр']; ?>')">
                                     Показать/скрыть уроки
                                 </button>
+                                 <form method="post" action=""
+                onsubmit="return confirm('Вы уверены, что хотите удалить временный модуль «<?php echo htmlspecialchars(addslashes($temp_course['название'] ?? 'Без названия')); ?>»? Это действие нельзя отменить!');"
+                style="display: inline; margin-left: 10px;">
+                <input type="hidden" name="temp_course_id" value="<?php echo htmlspecialchars((string) $temp_course['id_вр']); ?>">
+                <button type="submit" name="delete_temp_course" class="btn btn-delete">🗑 Удалить временный модуль</button>
+            </form>
                             </li>
                         <?php endforeach; ?>
                     </ol>
@@ -1081,89 +1120,7 @@ if ($stmt_temp_courses === false) {
             </form>
         </div>
     </div>
-    <script>
-        // Элементы модального окна
-        const tempCourseModal = document.getElementById('tempCourseModal');
-        const tempCourseBtn = document.getElementById('tempCourseBtn');
-        const closeModal = document.getElementById('closeModal');
-
-        // Открытие модального окна
-        tempCourseBtn.addEventListener('click', function () {
-            tempCourseModal.style.display = 'block';
-        });
-
-        // Закрытие модального окна
-        closeModal.addEventListener('click', function () {
-            tempCourseModal.style.display = 'none';
-        });
-
-        // Закрытие при клике вне окна
-        window.addEventListener('click', function (event) {
-            if (event.target === tempCourseModal) {
-                tempCourseModal.style.display = 'none';
-            }
-        });
-
-        // Обработка формы создания временного курса
-        document.getElementById('tempCourseForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const courseId = document.getElementById('courseSelect').value;
-            const tempName = document.getElementById('tempCourseName').value;
-            const tempDesc = document.getElementById('tempCourseDesc').value;
-
-            if (!courseId || !tempName) {
-                alert('Пожалуйста, выберите основной модуль и введите название временного модуля');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('course_id', courseId);
-            formData.append('temp_name', tempName);
-            formData.append('temp_desc', tempDesc);
-
-            console.log('Отправляем данные:', {
-                course_id: courseId,
-                temp_name: tempName,
-                temp_desc: tempDesc
-            });
-
-            fetch('create_temp_course.php', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => {
-                    console.log('HTTP статус:', response.status);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.text(); // сначала получаем сырой ответ
-                })
-                .then(text => {
-                    console.log('Сырой ответ сервера:', text);
-                    try {
-                        const data = JSON.parse(text);
-                        console.log('Распарсенный JSON:', data);
-
-                        if (data.success) {
-                            alert(data.message);
-                            tempCourseModal.style.display = 'none';
-                            document.getElementById('tempCourseForm').reset();
-                        } else {
-                            alert('Ошибка сервера: ' + (data.message || 'Неизвестная ошибка'));
-                        }
-                    } catch (parseError) {
-                        console.error('Ошибка парсинга JSON:', parseError);
-                        console.error('Сырой текст ответа:', text);
-                        alert('Ошибка формата ответа сервера. Проверьте консоль для деталей.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Критическая ошибка:', error);
-                    alert('Произошла критическая ошибка: ' + error.message);
-                });
-        });
-    </script>
+   
     <script>
         function toggleLessons1(containerId) {
             const lessonsList = document.getElementById(containerId);
